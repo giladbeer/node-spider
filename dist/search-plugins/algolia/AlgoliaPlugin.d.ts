@@ -1,0 +1,11 @@
+import { SearchClient } from 'algoliasearch';
+import { SearchPlugin } from '../interfaces';
+import { AlgoliaPluginOptions } from './types';
+export declare class AlgoliaPlugin implements SearchPlugin {
+    apiKey: string;
+    appId: string;
+    indexName: string;
+    client: SearchClient;
+    constructor(opts: AlgoliaPluginOptions);
+    addRecords(records: any[]): Promise<void>;
+}
