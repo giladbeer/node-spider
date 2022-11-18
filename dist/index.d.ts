@@ -10,5 +10,6 @@ export interface CrawlSiteOptions {
     diagnostics?: boolean;
     diagnosticsFilePath?: string;
     timeout?: number;
+    maxIndexedRecords?: number;
 }
 export declare const crawlSite: (options: CrawlSiteOptions) => Promise<void>;

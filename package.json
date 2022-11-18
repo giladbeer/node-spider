@@ -1,6 +1,6 @@
 {
   "name": "@giladbeer/node-spider",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "description": "Node.js web spider for site search",
   "main": "dist/index.js",
   "module": "dist/index.es.js",

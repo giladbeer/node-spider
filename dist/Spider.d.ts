@@ -28,6 +28,7 @@ export interface SpiderOptions {
     diagnosticsFilePath?: string;
     diagnosticsService?: DiagnosticsService;
     timeout?: number;
+    maxIndexedRecords?: number;
 }
 export declare class Spider {
     startUrls: string[];
@@ -45,6 +46,8 @@ export declare class Spider {
     remainingQueueSize: number;
     scrapedUrls: number;
     indexedRecords: number;
+    lastStartTime?: number;
+    maxIndexedRecords?: number;
     constructor(opts: SpiderOptions);
     registerSearchPlugin(options: SearchPluginOptions): void;
     crawl(): Promise<void>;

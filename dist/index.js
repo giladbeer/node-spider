@@ -46,7 +46,6 @@ var require$$4__namespace = /*#__PURE__*/_interopNamespaceDefault(require$$4$1);
 const loadConfig = (filePath) => {
     const configFile = require$$0__namespace.readFileSync(filePath);
     const jsonConfig = JSON.parse(configFile.toString());
-    console.log(jsonConfig);
     return jsonConfig;
 };
 
@@ -133607,13 +133606,52 @@ algoliasearch$2.exports = algoliasearch;
  */
 algoliasearch$2.exports.default = algoliasearch;
 
+const buildAlgoliaConfig = () => {
+    const config = {
+        attributesToRetrieve: ['l0', 'l2', 'l2', 'l3', 'l4', 'url', 'content'],
+        searchableAttributes: ['l0', 'l2', 'l2', 'l3', 'l4', 'url', 'content'],
+        ranking: [
+            'words',
+            'filters',
+            'typo',
+            'attribute',
+            'proximity',
+            'exact',
+            'custom'
+        ],
+        minWordSizefor1Typo: 3,
+        minWordSizefor2Typos: 7,
+        hitsPerPage: 20,
+        maxValuesPerFacet: 100,
+        minProximity: 1
+        // TODO - add properties
+        // customRanking: [
+        //   'desc(weight.page_rank)',
+        //   'desc(weight.level)',
+        //   'asc(weight.position)'
+        // ]
+    };
+    return config;
+};
+const parseAlgoliaConfig = (filePath) => {
+    const configFile = require$$0__namespace.readFileSync(filePath);
+    const config = JSON.parse(configFile.toString());
+    return config;
+};
+
 class AlgoliaPlugin {
     constructor(opts) {
         this.apiKey = opts.apiKey;
         this.appId = opts.appId;
         this.indexName = opts.indexName;
         this.client = algoliasearch$2.exports(opts.appId, opts.apiKey);
-        this.client.initIndex(opts.indexName);
+        this.index = this.client.initIndex(opts.indexName);
+        if (opts.customConfig) {
+            this.customConfig =
+                typeof opts.customConfig === 'string'
+                    ? parseAlgoliaConfig(opts.customConfig)
+                    : opts.customConfig;
+        }
     }
     async addRecords(records) {
         await this.client.multipleBatch(records.map((record) => ({
@@ -133621,6 +133659,18 @@ class AlgoliaPlugin {
             indexName: this.indexName,
             body: record
         })));
+    }
+    async generateConfig() {
+        const config = buildAlgoliaConfig();
+        await this.index.setSettings(this.customConfig || config); // if there is custom config, overwrite the default
+        const NATIVE_CONFIG_FILE_PATH = 'node_spider_algolia_config.json';
+        const CUSTOM_CONFIG_FILE_PATH = 'node_spider_algolia_config_custom.json';
+        require$$0__namespace.writeFileSync(NATIVE_CONFIG_FILE_PATH, JSON.stringify(config, undefined, 4));
+        require$$0__namespace.writeFileSync(CUSTOM_CONFIG_FILE_PATH, JSON.stringify(config, undefined, 4));
+        return NATIVE_CONFIG_FILE_PATH;
+    }
+    async init() {
+        await this.generateConfig();
     }
 }
 
@@ -133674,6 +133724,9 @@ class Spider {
         this.remainingQueueSize = 0;
         this.scrapedUrls = 0;
         this.indexedRecords = 0;
+        if (opts.maxIndexedRecords) {
+            this.maxIndexedRecords = opts.maxIndexedRecords;
+        }
     }
     registerSearchPlugin(options) {
         var _a, _b;
@@ -133689,7 +133742,11 @@ class Spider {
         });
     }
     async crawl() {
-        var _a;
+        var _a, _b;
+        if ((_a = this.searchPlugin) === null || _a === void 0 ? void 0 : _a.init) {
+            await this.searchPlugin.init();
+        }
+        this.lastStartTime = Date.now();
         const cluster = await dist$3.Cluster.launch({
             concurrency: dist$3.Cluster.CONCURRENCY_CONTEXT,
             maxConcurrency: this.maxConcurrency,
@@ -133726,6 +133783,12 @@ class Spider {
                     url,
                     content: text
                 }))) || [];
+                let hasReachedMax = false;
+                if (this.maxIndexedRecords &&
+                    this.indexedRecords + records.length > this.maxIndexedRecords) {
+                    hasReachedMax = true;
+                    records.splice(0, this.maxIndexedRecords - records.length);
+                }
                 (_b = this.diagnosticsService) === null || _b === void 0 ? void 0 : _b.addStat({
                     name: `scrapedPages > ${url} > scrapedContent`,
                     num: records.length || 0,
@@ -133749,6 +133812,12 @@ class Spider {
                         this.logger.error(`failed to indexed records`, error);
                         (_e = this.diagnosticsService) === null || _e === void 0 ? void 0 : _e.incrementStat(`searchEngine > totalErrors`);
                     }
+                }
+                if (hasReachedMax) {
+                    this.logger.debug(`reached maximum records (${this.maxIndexedRecords}), stopping...`);
+                    await cluster.idle();
+                    await cluster.close();
+                    return;
                 }
                 const allLinks = uniq((_f = (await page.evaluate((resultsSelector) => {
                     return Array.from(document.querySelectorAll(resultsSelector)).map((anchor) => {
@@ -133787,12 +133856,18 @@ class Spider {
         });
         await cluster.idle();
         await cluster.close();
-        (_a = this.diagnosticsService) === null || _a === void 0 ? void 0 : _a.writeAllStats();
+        this.logger.debug(`Done!`, {
+            remainingQueueSize: this.remainingQueueSize,
+            totalScrapedPages: this.scrapedUrls,
+            totalIndexedRecords: this.indexedRecords,
+            duration: `${(Date.now() - this.lastStartTime) / (1000 * 60)} minutes`
+        });
+        (_b = this.diagnosticsService) === null || _b === void 0 ? void 0 : _b.writeAllStats();
     }
 }
 
 const crawlSite = async (options) => {
-    const { config, configFilePath, searchEngineOpts = {}, logLevel, diagnostics = false, diagnosticsFilePath, timeout = 0 } = options;
+    const { config, configFilePath, searchEngineOpts = {}, logLevel, diagnostics = false, diagnosticsFilePath, timeout = 0, maxIndexedRecords } = options;
     const logger = Logger.getInstance(logLevel);
     const diagnosticsService = diagnostics || diagnosticsFilePath
         ? DiagnosticsService.getInstance(diagnosticsFilePath)
@@ -133806,12 +133881,14 @@ const crawlSite = async (options) => {
                 diagnostics,
                 diagnosticsService,
                 diagnosticsFilePath,
-                timeout
+                timeout,
+                maxIndexedRecords
             });
             await spider.crawl();
         }
         else if (configFilePath) {
             const configFromFile = loadConfig(configFilePath);
+            logger.debug(`loaded config from ${configFilePath}`, configFromFile);
             const spider = new Spider({
                 ...configFromFile,
                 searchEngineOpts,
@@ -133819,7 +133896,8 @@ const crawlSite = async (options) => {
                 diagnostics,
                 diagnosticsService,
                 diagnosticsFilePath,
-                timeout
+                timeout,
+                maxIndexedRecords
             });
             await spider.crawl();
         }

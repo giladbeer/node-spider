@@ -34,6 +34,7 @@ export interface SpiderOptions {
   diagnosticsFilePath?: string;
   diagnosticsService?: DiagnosticsService;
   timeout?: number;
+  maxIndexedRecords?: number;
 }
 
 export class Spider {
@@ -52,6 +53,8 @@ export class Spider {
   remainingQueueSize: number;
   scrapedUrls: number;
   indexedRecords: number;
+  lastStartTime?: number;
+  maxIndexedRecords?: number;
 
   constructor(opts: SpiderOptions) {
     if (typeof opts.startUrls === 'string') {
@@ -90,6 +93,9 @@ export class Spider {
     this.remainingQueueSize = 0;
     this.scrapedUrls = 0;
     this.indexedRecords = 0;
+    if (opts.maxIndexedRecords) {
+      this.maxIndexedRecords = opts.maxIndexedRecords;
+    }
   }
 
   registerSearchPlugin(options: SearchPluginOptions) {
@@ -109,6 +115,10 @@ export class Spider {
   }
 
   async crawl() {
+    if (this.searchPlugin?.init) {
+      await this.searchPlugin.init();
+    }
+    this.lastStartTime = Date.now();
     const cluster = await Cluster.launch({
       concurrency: Cluster.CONCURRENCY_CONTEXT,
       maxConcurrency: this.maxConcurrency,
@@ -153,6 +163,14 @@ export class Spider {
             url,
             content: text
           })) || [];
+        let hasReachedMax = false;
+        if (
+          this.maxIndexedRecords &&
+          this.indexedRecords + records.length > this.maxIndexedRecords
+        ) {
+          hasReachedMax = true;
+          records.splice(0, this.maxIndexedRecords - records.length);
+        }
         this.diagnosticsService?.addStat({
           name: `scrapedPages > ${url} > scrapedContent`,
           num: records.length || 0,
@@ -181,6 +199,15 @@ export class Spider {
               `searchEngine > totalErrors`
             );
           }
+        }
+
+        if (hasReachedMax) {
+          this.logger.debug(
+            `reached maximum records (${this.maxIndexedRecords}), stopping...`
+          );
+          await cluster.idle();
+          await cluster.close();
+          return;
         }
         const allLinks = uniq(
           (
@@ -229,6 +256,12 @@ export class Spider {
 
     await cluster.idle();
     await cluster.close();
+    this.logger.debug(`Done!`, {
+      remainingQueueSize: this.remainingQueueSize,
+      totalScrapedPages: this.scrapedUrls,
+      totalIndexedRecords: this.indexedRecords,
+      duration: `${(Date.now() - this.lastStartTime) / (1000 * 60)} minutes`
+    });
     this.diagnosticsService?.writeAllStats();
   }
 }
