@@ -133614,6 +133614,7 @@ const getPlugin = (options) => {
 
 class Spider {
     constructor(opts) {
+        var _a;
         if (typeof opts.startUrls === 'string') {
             this.startUrls = [opts.startUrls];
         }
@@ -133649,6 +133650,10 @@ class Spider {
                 DiagnosticsService.getInstance(opts.diagnosticsFilePath)
             : undefined;
         this.timeout = opts.timeout || 0;
+        this.ignoreUrls = ((_a = opts.ignoreUrls) === null || _a === void 0 ? void 0 : _a.map(withoutTrailingSlash)) || [];
+        this.remainingQueueSize = 0;
+        this.scrapedUrls = 0;
+        this.indexedRecords = 0;
     }
     registerSearchPlugin(options) {
         var _a, _b;
@@ -133675,6 +133680,7 @@ class Spider {
         await cluster.task(async ({ page, data: url }) => {
             var _a, _b, _c, _d, _e, _f, _g;
             try {
+                this.remainingQueueSize--;
                 this.logger.debug(`Scraping URL ${url}`);
                 if (this.userAgent) {
                     await page.setUserAgent(this.userAgent);
@@ -133717,6 +133723,7 @@ class Spider {
                             additionalData: JSON.stringify(records)
                         });
                         (_d = this.diagnosticsService) === null || _d === void 0 ? void 0 : _d.incrementStat(`searchEngine > indexedRecords`, records.length || 0);
+                        this.indexedRecords += records.length || 0;
                     }
                     catch (error) {
                         this.logger.error(`failed to indexed records`, error);
@@ -133729,7 +133736,8 @@ class Spider {
                     });
                 }, 'a'))) === null || _f === void 0 ? void 0 : _f.map((link) => withoutTrailingSlash(link)));
                 this.logger.debug(`found links`, allLinks);
-                const linksToCrawl = allLinks.filter((link) => !this.visitedUrls.includes(link) &&
+                const linksToCrawl = allLinks.filter((link) => !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
+                    !this.visitedUrls.includes(link) &&
                     this.allowedDomains.includes(urlToDomain(link)));
                 this.logger.debug(`marked links for crawling`, linksToCrawl);
                 (_g = this.diagnosticsService) === null || _g === void 0 ? void 0 : _g.addStat({
@@ -133739,6 +133747,13 @@ class Spider {
                 linksToCrawl.forEach((link) => {
                     this.visitedUrls.push(link);
                     cluster.queue(link);
+                    this.remainingQueueSize++;
+                });
+                this.scrapedUrls++;
+                this.logger.debug(`finished scraping url ${url}`, {
+                    remainingQueueSize: this.remainingQueueSize,
+                    totalScrapedPages: this.scrapedUrls,
+                    totalIndexedRecords: this.indexedRecords
                 });
             }
             catch (error) {
@@ -133748,6 +133763,7 @@ class Spider {
         this.startUrls.forEach((url) => {
             this.visitedUrls.push(withoutTrailingSlash(url));
             cluster.queue(url);
+            this.remainingQueueSize++;
         });
         await cluster.idle();
         await cluster.close();

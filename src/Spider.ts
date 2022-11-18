@@ -23,6 +23,7 @@ export interface Selectors {
 export interface SpiderOptions {
   startUrls: string | string[];
   allowedDomains?: string | string[];
+  ignoreUrls?: string[];
   maxConcurrency?: number;
   userAgent?: string;
   selectors: Selectors;
@@ -37,6 +38,7 @@ export interface SpiderOptions {
 
 export class Spider {
   startUrls: string[];
+  ignoreUrls: string[];
   allowedDomains: string[];
   maxConcurrency: number;
   userAgent?: string;
@@ -47,6 +49,9 @@ export class Spider {
   diagnostics?: boolean;
   diagnosticsService?: DiagnosticsService;
   timeout?: number;
+  remainingQueueSize: number;
+  scrapedUrls: number;
+  indexedRecords: number;
 
   constructor(opts: SpiderOptions) {
     if (typeof opts.startUrls === 'string') {
@@ -81,6 +86,10 @@ export class Spider {
         DiagnosticsService.getInstance(opts.diagnosticsFilePath)
       : undefined;
     this.timeout = opts.timeout || 0;
+    this.ignoreUrls = opts.ignoreUrls?.map(withoutTrailingSlash) || [];
+    this.remainingQueueSize = 0;
+    this.scrapedUrls = 0;
+    this.indexedRecords = 0;
   }
 
   registerSearchPlugin(options: SearchPluginOptions) {
@@ -110,6 +119,7 @@ export class Spider {
 
     await cluster.task(async ({ page, data: url }) => {
       try {
+        this.remainingQueueSize--;
         this.logger.debug(`Scraping URL ${url}`);
         if (this.userAgent) {
           await page.setUserAgent(this.userAgent);
@@ -164,6 +174,7 @@ export class Spider {
               `searchEngine > indexedRecords`,
               records.length || 0
             );
+            this.indexedRecords += records.length || 0;
           } catch (error) {
             this.logger.error(`failed to indexed records`, error);
             this.diagnosticsService?.incrementStat(
@@ -185,6 +196,7 @@ export class Spider {
         this.logger.debug(`found links`, allLinks);
         const linksToCrawl = allLinks.filter(
           (link: string) =>
+            !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
             !this.visitedUrls.includes(link) &&
             this.allowedDomains.includes(urlToDomain(link))
         );
@@ -196,6 +208,13 @@ export class Spider {
         linksToCrawl.forEach((link: string) => {
           this.visitedUrls.push(link);
           cluster.queue(link);
+          this.remainingQueueSize++;
+        });
+        this.scrapedUrls++;
+        this.logger.debug(`finished scraping url ${url}`, {
+          remainingQueueSize: this.remainingQueueSize,
+          totalScrapedPages: this.scrapedUrls,
+          totalIndexedRecords: this.indexedRecords
         });
       } catch (error) {
         this.logger.error(`error scraping url ${url}`, error);
@@ -205,6 +224,7 @@ export class Spider {
     this.startUrls.forEach((url) => {
       this.visitedUrls.push(withoutTrailingSlash(url));
       cluster.queue(url);
+      this.remainingQueueSize++;
     });
 
     await cluster.idle();

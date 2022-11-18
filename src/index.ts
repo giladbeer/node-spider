@@ -15,6 +15,7 @@ export interface CrawlSiteOptions {
     | 'selectors'
     | 'startUrls'
     | 'userAgent'
+    | 'ignoreUrls'
   >;
   searchEngineOpts?: SpiderOptions['searchEngineOpts'];
   logLevel?: LogLevel;

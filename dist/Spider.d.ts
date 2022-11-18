@@ -17,6 +17,7 @@ export interface Selectors {
 export interface SpiderOptions {
     startUrls: string | string[];
     allowedDomains?: string | string[];
+    ignoreUrls?: string[];
     maxConcurrency?: number;
     userAgent?: string;
     selectors: Selectors;
@@ -30,6 +31,7 @@ export interface SpiderOptions {
 }
 export declare class Spider {
     startUrls: string[];
+    ignoreUrls: string[];
     allowedDomains: string[];
     maxConcurrency: number;
     userAgent?: string;
@@ -40,6 +42,9 @@ export declare class Spider {
     diagnostics?: boolean;
     diagnosticsService?: DiagnosticsService;
     timeout?: number;
+    remainingQueueSize: number;
+    scrapedUrls: number;
+    indexedRecords: number;
     constructor(opts: SpiderOptions);
     registerSearchPlugin(options: SearchPluginOptions): void;
     crawl(): Promise<void>;
