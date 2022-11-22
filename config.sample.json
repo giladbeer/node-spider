@@ -20,7 +20,7 @@
     }
   },
   "onlyContentLevel": true,
-  "selectorsExclude": [
+  "excludeSelectors": [
     "header",
     "footer"
   ],
