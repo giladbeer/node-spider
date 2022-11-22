@@ -4,3 +4,4 @@ config.json
 .env
 node_spider_algolia_config.json
 node_spider_dump.txt
+dist
