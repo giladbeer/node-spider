@@ -1,6 +1,6 @@
 import { Cluster } from 'puppeteer-cluster';
 import { DiagnosticsService } from './DiagnosticsService';
-import { getContentMatchLevel } from './hierarchy';
+import { getContentMatchLevel, getLevelWeight } from './hierarchy';
 import { Logger } from './Logger';
 import { SearchPlugin, SearchPluginOptions } from './search-plugins/interfaces';
 import { getPlugin } from './search-plugins/pluginRegistry';
@@ -127,49 +127,11 @@ export class Spider {
         const selectorSet = findActiveSelectorSet(this.selectors, url);
         this.logger.debug(`Using selector set ${selectorSet}`);
 
-        // const levels = Object.keys(selectorSet.hierarchy) as Level[];
-        // const selectors = uniq(
-        //   Object.values(selectorSet.hierarchy).join(',').split(',')
-        // ).join(',');
-
         await page.exposeFunction('uniq', uniq);
         const { selectorMatches, selectorMatchesByLevel } = await page.evaluate(
           getSelectorMatches,
           { selectorSet }
         );
-        // const { selectorMatches, selectorMatchesByLevel } = await page.evaluate(
-        //   ({ selectorSet, levels }) => {
-        //     const selectorMatches = Array.from(
-        //       document.querySelectorAll(selectors)
-        //     )
-        //       .map((node) => node.textContent)
-        //       .filter(Boolean);
-
-        //     const selectorMatchesByLevel: Partial<Record<Level, string[]>> = {};
-        //     levels.forEach((level) => {
-        //       const selector = selectorSet.hierarchy[level];
-        //       if (selector) {
-        //         const levelContent = Array.from(
-        //           document.querySelectorAll(selector)
-        //         )
-        //           .map((node) => node.textContent)
-        //           .filter(Boolean);
-        //         selectorMatchesByLevel[level] = levelContent as string[];
-        //       }
-        //     });
-        //     return {
-        //       selectorMatches,
-        //       selectorMatchesByLevel
-        //     };
-
-        //     // TODO - consider l0 - l4 !!!
-        //     // const contentMatches = Array.from(
-        //     //   document.querySelectorAll(selectorSet.hierarchy.content)
-        //     // ).map((node) => node.textContent);
-        //     // return contentMatches;
-        //   },
-        //   { selectorSet, levels }
-        // );
 
         const records: ScrapedRecord[] = [];
         selectorMatches.forEach((contentMatch) => {
@@ -188,16 +150,15 @@ export class Spider {
                 l3: level === 'l3' ? contentMatch : '',
                 l4: level === 'l4' ? contentMatch : '',
                 content: level === 'content' ? contentMatch : ''
+              },
+              weight: {
+                level: getLevelWeight(level),
+                pageRank: selectorSet.pageRank || 0
               }
             });
           }
         });
 
-        // const records =
-        //   content?.map((text) => ({
-        //     url,
-        //     content: text
-        //   })) || [];
         let hasReachedMax = false;
         if (
           this.maxIndexedRecords &&
@@ -240,7 +201,11 @@ export class Spider {
           this.logger.debug(
             `reached maximum records (${this.maxIndexedRecords}), stopping...`
           );
+
+          // tell all queued jobs to exit immediately as they start
           this.stopping = true;
+
+          // wait for the queue to get emptied, then close the cluster
           await cluster.idle();
           await cluster.close();
           return;
@@ -292,6 +257,9 @@ export class Spider {
 
     await cluster.idle();
     await cluster.close();
+    if (this.searchPlugin?.finish) {
+      await this.searchPlugin.finish();
+    }
     this.logger.debug(`Done!`, {
       remainingQueueSize: this.remainingQueueSize,
       totalScrapedPages: this.scrapedUrls,

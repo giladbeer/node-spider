@@ -3,6 +3,7 @@ import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 import { nodeResolve as resolve } from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -27,6 +28,7 @@ export default {
   ],
 
   plugins: [
+    peerDepsExternal(),
     json(),
     resolve(),
     typescript(),

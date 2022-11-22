@@ -10,6 +10,7 @@ export class AlgoliaPlugin implements SearchPlugin {
   indexName: string;
   client: SearchClient;
   index: SearchIndex;
+  backupIndex: SearchIndex;
   customConfig?: Record<string, unknown>;
 
   constructor(opts: AlgoliaPluginOptions) {
@@ -18,6 +19,7 @@ export class AlgoliaPlugin implements SearchPlugin {
     this.indexName = opts.indexName;
     this.client = algoliasearch(opts.appId, opts.apiKey);
     this.index = this.client.initIndex(opts.indexName);
+    this.backupIndex = this.client.initIndex(`${opts.indexName}_bkp`);
     if (opts.customConfig) {
       this.customConfig =
         typeof opts.customConfig === 'string'
@@ -56,5 +58,10 @@ export class AlgoliaPlugin implements SearchPlugin {
 
   async init() {
     await this.generateConfig();
+    await this.client.copyIndex(this.indexName, `${this.indexName}_bkp`);
+  }
+
+  async finish() {
+    await this.client.moveIndex(`${this.indexName}_bkp`, this.indexName);
   }
 }

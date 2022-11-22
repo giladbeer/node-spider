@@ -16,6 +16,7 @@ export type Level = keyof Hierarchy;
 export interface SelectorSet {
   hierarchy: Hierarchy;
   urlPattern?: string;
+  pageRank?: number;
 }
 
 export interface Selectors {
@@ -33,6 +34,10 @@ export interface ScrapedRecord {
     l3?: string;
     l4?: string;
     content: string;
+  };
+  weight?: {
+    level?: number;
+    pageRank?: number;
   };
 }
 

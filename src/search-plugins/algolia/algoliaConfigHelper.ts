@@ -17,13 +17,13 @@ export const buildAlgoliaConfig = () => {
     minWordSizefor2Typos: 7,
     hitsPerPage: 20,
     maxValuesPerFacet: 100,
-    minProximity: 1
-    // TODO - add properties
-    // customRanking: [
-    //   'desc(weight.page_rank)',
-    //   'desc(weight.level)',
-    //   'asc(weight.position)'
-    // ]
+    minProximity: 1,
+    customRanking: [
+      'desc(weight.page_rank)',
+      'desc(weight.level)'
+      // TODO - think if we need this
+      // 'asc(weight.position)'
+    ]
   };
   return config;
 };
