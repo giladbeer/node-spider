@@ -45,7 +45,6 @@ export class DiagnosticsService {
   }
 
   public incrementStat(name: string, increment?: number) {
-    console.log('incrementStat', this.stats);
     const statPathname = name;
     const path = statPathname.split(' > ');
     setPropertyAtPath(this.stats, path, {

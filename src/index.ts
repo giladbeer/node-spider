@@ -3,8 +3,10 @@ import { DiagnosticsService } from './DiagnosticsService';
 import { LogLevel, Logger } from './Logger';
 
 export { loadConfig } from './configLoader';
-import { SpiderOptions, Spider } from './Spider';
-export { Spider, SpiderOptions, Selectors, SelectorSet } from './Spider';
+import { SpiderOptions } from './types';
+import { Spider } from './Spider';
+export { Spider } from './Spider';
+export * from './types';
 
 export interface CrawlSiteOptions {
   configFilePath?: string;

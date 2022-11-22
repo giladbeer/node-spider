@@ -45,10 +45,12 @@ export class AlgoliaPlugin implements SearchPlugin {
       NATIVE_CONFIG_FILE_PATH,
       JSON.stringify(config, undefined, 4)
     );
-    fs.writeFileSync(
-      CUSTOM_CONFIG_FILE_PATH,
-      JSON.stringify(config, undefined, 4)
-    );
+    if (this.customConfig) {
+      fs.writeFileSync(
+        CUSTOM_CONFIG_FILE_PATH,
+        JSON.stringify(config, undefined, 4)
+      );
+    }
     return NATIVE_CONFIG_FILE_PATH;
   }
 

@@ -14,7 +14,8 @@
     "type-check": "yarn tsc --noEmit",
     "dev": "rollup --config -w",
     "prepublish": "yarn build",
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public",
+    "check-circular-deps": "dpdm --exit-code circular:1 --tree false --warning false --ext \".js,.jsx,.ts,.tsx\" ./src/*"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -39,6 +40,8 @@
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
+    "dotenv": "^16.0.3",
+    "dpdm": "^3.10.0",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -47,11 +50,14 @@
     "rollup-plugin-dts": "^5.0.0",
     "rollup-plugin-license": "^3.0.1",
     "tslib": "^2.4.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "algoliasearch": ">= 4.14.2 < 5",
+    "puppeteer": ">= 19.2.2 < 20",
+    "puppeteer-cluster": ">= 0.23.0 < 1"
   },
-  "dependencies": {
-    "algoliasearch": "^4.14.2",
-    "puppeteer": "^19.2.2",
-    "puppeteer-cluster": "^0.23.0"
+  "peerDependencies": {
+    "algoliasearch": ">= 4.14.2 < 5",
+    "puppeteer": ">= 19.2.2 < 20",
+    "puppeteer-cluster": ">= 0.23.0 < 1"
   }
 }

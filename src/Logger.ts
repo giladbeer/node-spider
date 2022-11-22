@@ -19,19 +19,31 @@ export class Logger {
 
   public debug(message: string, data?: unknown) {
     if (this.level === 'debug') {
-      console.debug(message, data);
+      if (data) {
+        console.debug(message, data);
+      } else {
+        console.debug(message);
+      }
     }
   }
 
   public warn(message: string, data?: unknown) {
     if (!['error', 'supress'].includes(this.level)) {
-      console.warn(message, data);
+      if (data) {
+        console.warn(message, data);
+      } else {
+        console.warn(message);
+      }
     }
   }
 
   public error(message: string, data?: unknown) {
     if (this.level !== 'supress') {
-      console.error(message, data);
+      if (data) {
+        console.error(message, data);
+      } else {
+        console.error(message);
+      }
     }
   }
 }

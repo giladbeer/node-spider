@@ -1,0 +1,28 @@
+{
+  "maxConcurrency": 1,
+  "startUrls": [
+    "https://www.google.com"
+  ],
+  "ignoreUrls": [
+    "(.)*&utm_source(.)*"
+  ],
+  "selectors": {
+    "default": {
+      "hierarchy": {
+        "l0": "title",
+        "l1": "main h1",
+        "l2": "main h2",
+        "l3": "main h3",
+        "l4": "main h4",
+        "l5": "main p",
+        "content": "title, main h1, main h2, main h3, main h4, main p, main li"
+      }
+    }
+  },
+  "onlyContentLevel": true,
+  "selectorsExclude": [
+    "header",
+    "footer"
+  ],
+  "userAgent": "Agent Smith"
+}
