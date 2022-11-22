@@ -9,8 +9,8 @@ export class AlgoliaPlugin implements SearchPlugin {
   appId: string;
   indexName: string;
   client: SearchClient;
-  index: SearchIndex;
-  backupIndex: SearchIndex;
+  originalIndex: SearchIndex;
+  newIndex: SearchIndex;
   customConfig?: Record<string, unknown>;
 
   constructor(opts: AlgoliaPluginOptions) {
@@ -18,8 +18,8 @@ export class AlgoliaPlugin implements SearchPlugin {
     this.appId = opts.appId;
     this.indexName = opts.indexName;
     this.client = algoliasearch(opts.appId, opts.apiKey);
-    this.index = this.client.initIndex(opts.indexName);
-    this.backupIndex = this.client.initIndex(`${opts.indexName}_bkp`);
+    this.originalIndex = this.client.initIndex(opts.indexName);
+    this.newIndex = this.client.initIndex(`${opts.indexName}_new`);
     if (opts.customConfig) {
       this.customConfig =
         typeof opts.customConfig === 'string'
@@ -32,7 +32,7 @@ export class AlgoliaPlugin implements SearchPlugin {
     await this.client.multipleBatch(
       records.map((record) => ({
         action: 'addObject',
-        indexName: this.indexName,
+        indexName: `${this.indexName}_new`,
         body: record
       }))
     );
@@ -40,7 +40,7 @@ export class AlgoliaPlugin implements SearchPlugin {
 
   async generateConfig() {
     const config = buildAlgoliaConfig();
-    await this.index.setSettings(this.customConfig || config); // if there is custom config, overwrite the default
+    await this.newIndex.setSettings(this.customConfig || config); // if there is custom config, overwrite the default
     const NATIVE_CONFIG_FILE_PATH = 'node_spider_algolia_config.json';
     const CUSTOM_CONFIG_FILE_PATH = 'node_spider_algolia_config_custom.json';
     fs.writeFileSync(
@@ -58,10 +58,9 @@ export class AlgoliaPlugin implements SearchPlugin {
 
   async init() {
     await this.generateConfig();
-    await this.client.copyIndex(this.indexName, `${this.indexName}_bkp`);
   }
 
   async finish() {
-    await this.client.moveIndex(`${this.indexName}_bkp`, this.indexName);
+    await this.client.moveIndex(`${this.indexName}_new`, this.indexName);
   }
 }

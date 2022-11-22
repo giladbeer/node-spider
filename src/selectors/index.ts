@@ -49,3 +49,14 @@ export async function getSelectorMatches({
     selectorMatchesByLevel
   };
 }
+
+export async function removeExcludedElements({
+  exclude
+}: {
+  exclude: string[];
+}) {
+  const elements = document.querySelectorAll(exclude.join());
+  elements?.forEach((el) => {
+    el.parentNode?.removeChild(el);
+  });
+}

@@ -4,7 +4,7 @@ import { getContentMatchLevel, getLevelWeight } from './hierarchy';
 import { Logger } from './Logger';
 import { SearchPlugin, SearchPluginOptions } from './search-plugins/interfaces';
 import { getPlugin } from './search-plugins/pluginRegistry';
-import { findActiveSelectorSet } from './selectors';
+import { findActiveSelectorSet, removeExcludedElements } from './selectors';
 import { ScrapedRecord, Selectors, SpiderOptions } from './types';
 import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
 import { getSelectorMatches } from './selectors';
@@ -28,6 +28,7 @@ export class Spider {
   lastStartTime?: number;
   maxIndexedRecords?: number;
   stopping: boolean;
+  excludeSelectors?: string[];
 
   constructor(opts: SpiderOptions) {
     if (typeof opts.startUrls === 'string') {
@@ -68,6 +69,9 @@ export class Spider {
     this.indexedRecords = 0;
     if (opts.maxIndexedRecords) {
       this.maxIndexedRecords = opts.maxIndexedRecords;
+    }
+    if (opts.excludeSelectors) {
+      this.excludeSelectors = opts.excludeSelectors;
     }
     this.stopping = false;
   }
@@ -127,6 +131,19 @@ export class Spider {
         const selectorSet = findActiveSelectorSet(this.selectors, url);
         this.logger.debug(`Using selector set ${selectorSet}`);
 
+        if (this.excludeSelectors) {
+          this.logger.debug(
+            `Removing excluded selectors from DOM`,
+            this.excludeSelectors
+          );
+          await page.evaluate(removeExcludedElements, {
+            exclude: this.excludeSelectors
+          });
+          this.logger.debug(
+            `Successfully removed excluded selectors`,
+            this.excludeSelectors
+          );
+        }
         await page.exposeFunction('uniq', uniq);
         const { selectorMatches, selectorMatchesByLevel } = await page.evaluate(
           getSelectorMatches,

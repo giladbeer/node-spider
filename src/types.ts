@@ -56,4 +56,5 @@ export interface SpiderOptions {
   diagnosticsService?: DiagnosticsService;
   timeout?: number;
   maxIndexedRecords?: number;
+  excludeSelectors?: string[];
 }
