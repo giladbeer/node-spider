@@ -158,10 +158,8 @@ export class Spider {
           );
         }
         await page.exposeFunction('uniq', uniq);
-        const { selectorMatches, selectorMatchesByLevel } = await page.evaluate(
-          getSelectorMatches,
-          { selectorSet }
-        );
+        const { selectorMatches, selectorMatchesByLevel, title } =
+          await page.evaluate(getSelectorMatches, { selectorSet });
 
         const records: ScrapedRecord[] = [];
         selectorMatches.forEach((contentMatch) => {
@@ -173,6 +171,7 @@ export class Spider {
             records.push({
               url,
               content: contentMatch,
+              title,
               hierarchy: {
                 l0: level === 'l0' ? contentMatch : '',
                 l1: level === 'l1' ? contentMatch : '',
