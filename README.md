@@ -25,7 +25,7 @@ yarn
 yarn add puppeteer puppeteer-cluster @giladbeer/node-spider
 ```
 
-### usage
+### usage 
 
 ```js
 import { crawlSite } from '@giladbeer/node-spider';
