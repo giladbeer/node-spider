@@ -1,3 +1,12 @@
+## [0.6.6](https://github.com/giladbeer/node-spider/compare/v0.6.5...v0.6.6) (2022-11-23)
+
+
+### chore
+
+* add registry-url to setup node ([40a4349](https://github.com/giladbeer/node-spider/commit/40a43490875b7bad317c07606951e394df3d3693))
+
+
+
 ## [0.6.5](https://github.com/giladbeer/node-spider/compare/v0.6.4...v0.6.5) (2022-11-23)
 
 
