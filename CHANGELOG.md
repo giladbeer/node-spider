@@ -1,3 +1,12 @@
+## [0.6.5](https://github.com/giladbeer/node-spider/compare/v0.6.4...v0.6.5) (2022-11-23)
+
+
+### fix
+
+* add yarn and node setup to the workflow ([aa62715](https://github.com/giladbeer/node-spider/commit/aa627159d20b372ca8a7d72170ce8eaf7e2280cb))
+
+
+
 ## [0.6.4](https://github.com/giladbeer/node-spider/compare/v0.6.3...v0.6.4) (2022-11-23)
 
 
