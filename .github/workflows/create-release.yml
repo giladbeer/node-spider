@@ -1,0 +1,54 @@
+name: 'Create Release'
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      # This action updates these files, so ignore them to prevent an infinite loop
+      - 'package.json'
+      - 'CHANGELOG.md'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    # Set env var for use across steps
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+
+      # Bump version and push tag
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@f02cbf500be5df43bea8aba831e5b2907aef3366
+        with:
+          github-token: ${{ secrets.GH_ADMIN_TOKEN }}
+          # use eslint preset: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-eslint
+          preset: 'eslint'
+          output-file: 'CHANGELOG.md'
+
+      # Create a release
+      - name: Release
+        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e
+        # Skip release if no changelog update
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          release_name: Release ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
+
+      # Publish NPM package
+      - name: Publish
+        # Skip publish if no changelog update
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+        run: yarn run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
