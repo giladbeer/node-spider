@@ -28,6 +28,32 @@ export interface CrawlSiteOptions {
   maxIndexedRecords?: number;
 }
 
+/**
+ * instantiates a Spider object, initializing it based on your config file and settings, then invoking its `crawl` method.
+ * @param options - crawler configuration and settings
+ * @example
+ * import { crawlSite } from '@giladbeer/node-spider';
+
+const letsStartCrawling = async () => {
+  await crawlSite({
+      configFilePath: 'path/to/your/config.json',
+      searchEngineOpts: {
+        algolia: {
+          apiKey: '<your algolia API key>',
+          appId: '<your algolia app ID>',
+          indexName: '<your algolia index name>'
+        }
+      },
+      diagnostics: true,
+      logLevel: 'debug',
+      maxIndexedRecords: 300
+    });
+}
+
+letsStartCrawling().then(() => {
+  process.exit(0);
+})
+ */
 export const crawlSite = async (options: CrawlSiteOptions) => {
   const {
     config,

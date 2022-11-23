@@ -41,20 +41,38 @@ export interface ScrapedRecord {
   };
 }
 
+/**
+ * instantiates a Spider object, initializing it based on your config file and settings, then invoking its `crawl` method.
+ */
 export interface SpiderOptions {
+  /** list of urls that the crawler will start from */
   startUrls: string | string[];
+  /** list of allowed domains. When not specified, defaults to the domains of your startUrls */
   allowedDomains?: string | string[];
+  /** list of url patterns to ignore */
   ignoreUrls?: string[];
+  /** maximum concurrent puppeteer clusters to run */
   maxConcurrency?: number;
+  /** custom user agent to set when running puppeteer */
   userAgent?: string;
+  /** html selectors for telling the crawler which content to scrape for indexing */
   selectors: Selectors;
+  /** search engine settings */
   searchEngineOpts?: SearchPluginOptions;
+  /** log level */
   logLevel?: LogLevel;
+  /** Logger instance */
   logger?: Logger;
+  /** whether or not to output diagnostics */
   diagnostics?: boolean;
+  /** path to the file where diagnostics will be written to */
   diagnosticsFilePath?: string;
+  /** Diagnostics service instance */
   diagnosticsService?: DiagnosticsService;
+  /** timeout (ms) */
   timeout?: number;
+  /** maximum number of records to index. If reached, the crawling jobs will terminate */
   maxIndexedRecords?: number;
+  /** list of html selectors to exclude from being scraped */
   excludeSelectors?: string[];
 }
