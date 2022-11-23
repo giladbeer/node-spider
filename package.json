@@ -26,7 +26,7 @@
   },
   "keywords": [],
   "author": "giladbeer <gilad.beer@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/giladbeer/node-spider/issues"
   },
