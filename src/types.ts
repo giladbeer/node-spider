@@ -27,6 +27,7 @@ export interface Selectors {
 export interface ScrapedRecord {
   url: string;
   content: string;
+  title: string;
   hierarchy: {
     l0?: string;
     l1?: string;

@@ -44,9 +44,11 @@ export async function getSelectorMatches({
       selectorMatchesByLevel[level] = levelContent as string[];
     }
   });
+  const title = selectorMatchesByLevel['l0']?.[0] || '';
   return {
     selectorMatches,
-    selectorMatchesByLevel
+    selectorMatchesByLevel,
+    title
   };
 }
 
