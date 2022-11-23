@@ -1,3 +1,12 @@
+## [0.6.7](https://github.com/giladbeer/node-spider/compare/v0.6.6...v0.6.7) (2022-11-23)
+
+
+### chore
+
+* license ([601eb46](https://github.com/giladbeer/node-spider/commit/601eb46d4cd85f91731e2f014cae898f30c94f7b))
+
+
+
 ## [0.6.6](https://github.com/giladbeer/node-spider/compare/v0.6.5...v0.6.6) (2022-11-23)
 
 
