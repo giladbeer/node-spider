@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "NODE_ENV=production rollup --config rollup.config.ts --configPlugin typescript",
+    "build": "NODE_ENV=production yarn rollup --config rollup.config.ts --configPlugin typescript",
     "lint": "yarn eslint .",
     "lint:fix": "yarn lint --fix",
     "type-check": "yarn tsc --noEmit",
