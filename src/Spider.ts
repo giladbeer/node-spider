@@ -29,6 +29,7 @@ export class Spider {
   maxIndexedRecords?: number;
   stopping: boolean;
   excludeSelectors?: string[];
+  respectRobotsMeta: boolean;
 
   constructor(opts: SpiderOptions) {
     if (typeof opts.startUrls === 'string') {
@@ -74,6 +75,7 @@ export class Spider {
       this.excludeSelectors = opts.excludeSelectors;
     }
     this.stopping = false;
+    this.respectRobotsMeta = opts.respectRobotsMeta || false;
   }
 
   registerSearchPlugin(options: SearchPluginOptions) {
@@ -107,11 +109,11 @@ export class Spider {
     });
 
     await cluster.task(async ({ page, data: url }) => {
-      if (this.stopping) {
-        return;
-      }
       try {
         this.remainingQueueSize--;
+        if (this.stopping) {
+          return;
+        }
         // page
         //   .on('console', (message) => console.log(message.text()))
         //   .on('pageerror', ({ message }) => console.log(message))
@@ -127,6 +129,17 @@ export class Spider {
         }
         await page.goto(url);
         this.diagnosticsService?.addStat({ name: `scrapedPages > ${url}` });
+
+        let skipIndexing = false;
+        if (this.respectRobotsMeta) {
+          skipIndexing = await page.evaluate((metaTagSelector: string) => {
+            return Array.from(document.querySelectorAll(metaTagSelector)).some(
+              (element) => {
+                return element.textContent?.includes('noindex');
+              }
+            );
+          }, "head > meta[name='robots']");
+        }
 
         const selectorSet = findActiveSelectorSet(this.selectors, url);
         this.logger.debug(`Using selector set ${selectorSet}`);
@@ -182,7 +195,7 @@ export class Spider {
           this.indexedRecords + records.length >= this.maxIndexedRecords
         ) {
           hasReachedMax = true;
-          records.splice(0, this.maxIndexedRecords - records.length);
+          records.splice(0, this.maxIndexedRecords - this.indexedRecords);
         }
         this.diagnosticsService?.addStat({
           name: `scrapedPages > ${url} > scrapedContent`,
@@ -191,7 +204,12 @@ export class Spider {
         });
 
         this.logger.debug(`scraped records ${records}`);
-        if (this.searchPlugin) {
+        if (this.searchPlugin && skipIndexing) {
+          this.logger.debug(
+            `${url} has a "noindex" robots meta tag. Skipping indexing`
+          );
+        }
+        if (this.searchPlugin && !skipIndexing) {
           this.logger.debug(`attempting to index records`);
           try {
             await this.searchPlugin.addRecords(records);

@@ -82,6 +82,7 @@ instantiates a Spider object, initializing it based on your config file and sett
 | `userAgent` | N | string | custom user agent to set when running puppeteer |
 | `excludeSelectors` | N | string[] | list of html selectors to exclude from being scraped |
 | `maxConcurrency` | N | number | maximum concurrent puppeteer clusters to run |
+| `respectRobotsMeta` | N | boolean | whether or not the crawler should respect `noindex` meta tag. Defaults to false |
 
 #### Selectors
 | Property | Required | Type | Description |

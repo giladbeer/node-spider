@@ -75,4 +75,6 @@ export interface SpiderOptions {
   maxIndexedRecords?: number;
   /** list of html selectors to exclude from being scraped */
   excludeSelectors?: string[];
+  /** whether or not the crawler should respect 'noindex' meta tag */
+  respectRobotsMeta?: boolean;
 }

@@ -19,6 +19,7 @@ export interface CrawlSiteOptions {
     | 'userAgent'
     | 'ignoreUrls'
     | 'excludeSelectors'
+    | 'respectRobotsMeta'
   >;
   searchEngineOpts?: SpiderOptions['searchEngineOpts'];
   logLevel?: LogLevel;
