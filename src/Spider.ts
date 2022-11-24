@@ -31,6 +31,8 @@ export class Spider {
   stopping: boolean;
   excludeSelectors?: string[];
   respectRobotsMeta: boolean;
+  minResultLength?: number;
+  shouldExcludeResult?: (content: string) => boolean;
 
   constructor(opts: SpiderOptions) {
     if (typeof opts.startUrls === 'string') {
@@ -77,6 +79,10 @@ export class Spider {
     }
     this.stopping = false;
     this.respectRobotsMeta = opts.respectRobotsMeta || false;
+    this.shouldExcludeResult = opts.shouldExcludeResult;
+    if (opts.minResultLength) {
+      this.minResultLength = opts.minResultLength;
+    }
   }
 
   registerSearchPlugin(options: SearchPluginOptions) {
@@ -164,7 +170,13 @@ export class Spider {
 
         const records: ScrapedRecord[] = [];
         selectorMatches.forEach((contentMatch) => {
-          if (contentMatch) {
+          if (
+            contentMatch &&
+            !(
+              this.minResultLength && contentMatch.length < this.minResultLength
+            ) &&
+            !this.shouldExcludeResult?.(contentMatch)
+          ) {
             const level = getContentMatchLevel(
               contentMatch,
               selectorMatchesByLevel

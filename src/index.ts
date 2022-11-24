@@ -27,6 +27,8 @@ export interface CrawlSiteOptions {
   diagnosticsFilePath?: string;
   timeout?: number;
   maxIndexedRecords?: number;
+  shouldExcludeResult?: (content: string) => boolean;
+  minResultLength?: number;
 }
 
 /**
@@ -64,7 +66,9 @@ export const crawlSite = async (options: CrawlSiteOptions) => {
     diagnostics = false,
     diagnosticsFilePath,
     timeout = 0,
-    maxIndexedRecords
+    maxIndexedRecords,
+    shouldExcludeResult,
+    minResultLength
   } = options;
   const logger = Logger.getInstance(logLevel);
   const diagnosticsService =
@@ -82,7 +86,9 @@ export const crawlSite = async (options: CrawlSiteOptions) => {
         diagnosticsService,
         diagnosticsFilePath,
         timeout,
-        maxIndexedRecords
+        maxIndexedRecords,
+        shouldExcludeResult,
+        minResultLength
       });
       await spider.crawl();
     } else if (configFilePath) {
@@ -96,7 +102,9 @@ export const crawlSite = async (options: CrawlSiteOptions) => {
         diagnosticsService,
         diagnosticsFilePath,
         timeout,
-        maxIndexedRecords
+        maxIndexedRecords,
+        shouldExcludeResult,
+        minResultLength
       });
       await spider.crawl();
     } else {

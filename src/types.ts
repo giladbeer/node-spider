@@ -79,4 +79,8 @@ export interface SpiderOptions {
   excludeSelectors?: string[];
   /** whether or not the crawler should respect 'noindex' meta tag */
   respectRobotsMeta?: boolean;
+  /** minimum word length to index */
+  minResultLength?: number;
+  /** predicate for excluding a result from being indexed. Returns true if the result should be excluded */
+  shouldExcludeResult?: (content: string) => boolean;
 }

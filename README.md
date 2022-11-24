@@ -1,5 +1,11 @@
 # node-spider
 
+[![Build Status](https://github.com/giladbeer/node-spider/actions/workflows/create-release.yml/badge.svg)](https://github.com/giladbeer/node-spider/actions/workflows/create-release.yml)
+[![npm](https://img.shields.io/npm/v/node-spider)](https://www.npmjs.com/package/@giladbeer/node-spider)
+[![Known Vulnerabilities](https://snyk.io/test/github/giladbeer/node-spider/badge.svg)](https://snyk.io/test/github/giladbeer/node-spider)
+[![MIT License](https://img.shields.io/npm/l/node-spider.svg)](#license)
+
+
 A Node.js web spider for site search. Inspired by the deprecated https://github.com/algolia/docsearch-scraper
 NOTE: The project is in a very early stage.
 
@@ -7,7 +13,7 @@ NOTE: The project is in a very early stage.
 
 node-spider lets you crawl your website, scrape content that matches html selectors you specified in a config file, then index them in a search engine (currently only supports Algolia) to serve your site search features.
 
-Under the hood, the project uses [puppeteer-cluster](https://github.com/thomasdondorf/puppeteer-cluster), which in turn uses [puppeteer](https://github.com/puppeteer/puppeteer)
+Under the hood, the project uses [puppeteer-cluster](https://github.com/giladbeer/node-spider), which in turn uses [puppeteer](https://github.com/puppeteer/puppeteer)
 
 ## getting started
 
