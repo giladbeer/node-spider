@@ -13,8 +13,7 @@
     "lint:fix": "yarn lint --fix",
     "type-check": "yarn tsc --noEmit",
     "dev": "rollup --config -w",
-    "prepublish": "yarn build",
-    "publish": "npm publish --access public",
+    "publish": "yarn build && npm publish --access public",
     "check-circular-deps": "dpdm --exit-code circular:1 --tree false --warning false --ext \".js,.jsx,.ts,.tsx\" ./src/*"
   },
   "publishConfig": {

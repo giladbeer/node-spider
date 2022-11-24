@@ -1,6 +1,6 @@
 # node-spider
 
-[![Build Status](https://github.com/giladbeer/node-spider/actions/workflows/create-release.yml/badge.svg)](https://github.com/giladbeer/node-spider/actions/workflows/create-release.yml)
+[![Build Status](https://github.com/giladbeer/node-spider/actions/workflows/quality-checks.yml/badge.svg)](https://github.com/giladbeer/node-spider/actions/workflows/quality-checks.yml)
 [![npm](https://img.shields.io/npm/v/node-spider)](https://www.npmjs.com/package/@giladbeer/node-spider)
 [![Known Vulnerabilities](https://snyk.io/test/github/giladbeer/node-spider/badge.svg)](https://snyk.io/test/github/giladbeer/node-spider)
 [![MIT License](https://img.shields.io/npm/l/node-spider.svg)](#license)
