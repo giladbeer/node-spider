@@ -1,3 +1,12 @@
+## [0.6.9](https://github.com/giladbeer/node-spider/compare/v0.6.8...v0.6.9) (2022-11-24)
+
+
+### update
+
+* remove search duplicates ([73d238d](https://github.com/giladbeer/node-spider/commit/73d238d375688b037890804c285aac666e2441b5))
+
+
+
 ## [0.6.8](https://github.com/giladbeer/node-spider/compare/v0.6.7...v0.6.8) (2022-11-23)
 
 
@@ -31,19 +40,6 @@
 ### fix
 
 * add yarn and node setup to the workflow ([aa62715](https://github.com/giladbeer/node-spider/commit/aa627159d20b372ca8a7d72170ce8eaf7e2280cb))
-
-
-
-## [0.6.4](https://github.com/giladbeer/node-spider/compare/v0.6.3...v0.6.4) (2022-11-23)
-
-
-### chore
-
-* remove new console.log ([0cb4e63](https://github.com/giladbeer/node-spider/commit/0cb4e639862ff94a6b5211d453e950dc1d67ff32))
-
-### fix
-
-* add yarn before rollup command ([705927a](https://github.com/giladbeer/node-spider/commit/705927ac5621137d25a92c4ca1b47ccfd716c31f))
 
 
 
