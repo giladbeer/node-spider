@@ -8,6 +8,7 @@ import { findActiveSelectorSet, removeExcludedElements } from './selectors';
 import { ScrapedRecord, Selectors, SpiderOptions } from './types';
 import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
 import { getSelectorMatches } from './selectors';
+import { md5 } from './utils/hashing';
 
 export class Spider {
   startUrls: string[];
@@ -135,7 +136,7 @@ export class Spider {
           skipIndexing = await page.evaluate((metaTagSelector: string) => {
             return Array.from(document.querySelectorAll(metaTagSelector)).some(
               (element) => {
-                return element.textContent?.includes('noindex');
+                return (element as any)?.content?.includes('noindex');
               }
             );
           }, "head > meta[name='robots']");
@@ -169,6 +170,7 @@ export class Spider {
               selectorMatchesByLevel
             );
             records.push({
+              uniqueId: md5(`${url}${contentMatch}`),
               url,
               content: contentMatch,
               title,

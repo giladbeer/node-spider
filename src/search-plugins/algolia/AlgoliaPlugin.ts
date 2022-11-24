@@ -3,6 +3,8 @@ import { SearchPlugin } from '../interfaces';
 import { buildAlgoliaConfig, parseAlgoliaConfig } from './algoliaConfigHelper';
 import { AlgoliaPluginOptions } from './types';
 import * as fs from 'fs';
+import { ScrapedRecord } from '../../types';
+import { transformRecord } from './transform';
 
 export class AlgoliaPlugin implements SearchPlugin {
   apiKey: string;
@@ -28,12 +30,12 @@ export class AlgoliaPlugin implements SearchPlugin {
     }
   }
 
-  async addRecords(records: any[]) {
+  async addRecords(records: ScrapedRecord[]) {
     await this.client.multipleBatch(
       records.map((record) => ({
-        action: 'addObject',
+        action: 'updateObject',
         indexName: `${this.indexName}_new`,
-        body: record
+        body: transformRecord(record)
       }))
     );
   }
