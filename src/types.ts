@@ -25,6 +25,7 @@ export interface Selectors {
 }
 
 export interface ScrapedRecord {
+  uniqueId: string;
   url: string;
   content: string;
   title: string;

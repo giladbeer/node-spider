@@ -2,8 +2,26 @@ import * as fs from 'fs';
 
 export const buildAlgoliaConfig = () => {
   const config = {
-    attributesToRetrieve: ['l0', 'l1', 'l2', 'l3', 'l4', 'url', 'content'],
-    searchableAttributes: ['l0', 'l1', 'l2', 'l3', 'l4', 'url', 'content'],
+    attributesToRetrieve: [
+      'l0',
+      'l1',
+      'l2',
+      'l3',
+      'l4',
+      'url',
+      'content',
+      'title'
+    ],
+    searchableAttributes: [
+      'l0',
+      'l1',
+      'l2',
+      'l3',
+      'l4',
+      'url',
+      'content',
+      'title'
+    ],
     ranking: [
       'words',
       'filters',
