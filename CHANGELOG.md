@@ -1,3 +1,12 @@
+## [0.6.10](https://github.com/giladbeer/node-spider/compare/v0.6.9...v0.6.10) (2022-11-24)
+
+
+### update
+
+* minResultLength, badges ([64ba4e1](https://github.com/giladbeer/node-spider/commit/64ba4e1e42c6325787e67d8de0608e3cee49772c))
+
+
+
 ## [0.6.9](https://github.com/giladbeer/node-spider/compare/v0.6.8...v0.6.9) (2022-11-24)
 
 
@@ -31,15 +40,6 @@
 ### chore
 
 * add registry-url to setup node ([40a4349](https://github.com/giladbeer/node-spider/commit/40a43490875b7bad317c07606951e394df3d3693))
-
-
-
-## [0.6.5](https://github.com/giladbeer/node-spider/compare/v0.6.4...v0.6.5) (2022-11-23)
-
-
-### fix
-
-* add yarn and node setup to the workflow ([aa62715](https://github.com/giladbeer/node-spider/commit/aa627159d20b372ca8a7d72170ce8eaf7e2280cb))
 
 
 
