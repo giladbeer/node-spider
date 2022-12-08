@@ -59,5 +59,6 @@
     "algoliasearch": ">= 4.14.2 < 5",
     "puppeteer": ">= 19.2.2 < 20",
     "puppeteer-cluster": ">= 0.23.0 < 1"
-  }
+  },
+  "dependencies": {}
 }

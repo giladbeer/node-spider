@@ -14,8 +14,7 @@
         "l2": "main h2",
         "l3": "main h3",
         "l4": "main h4",
-        "l5": "main p",
-        "content": "title, main h1, main h2, main h3, main h4, main p, main li"
+        "content": "main p"
       }
     }
   },
@@ -24,5 +23,8 @@
     "header",
     "footer"
   ],
-  "userAgent": "Agent Smith"
+  "userAgent": "Agent Smith",
+  "diagnostics": true,
+  "logLevel": "debug",
+  "maxIndexedRecords": 300
 }

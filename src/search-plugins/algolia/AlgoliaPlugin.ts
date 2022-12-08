@@ -1,5 +1,5 @@
 import algoliasearch, { SearchClient, SearchIndex } from 'algoliasearch';
-import { SearchPlugin } from '../interfaces';
+import { GeneralPluginSettings, SearchPlugin } from '../interfaces';
 import { buildAlgoliaConfig, parseAlgoliaConfig } from './algoliaConfigHelper';
 import { AlgoliaPluginOptions } from './types';
 import * as fs from 'fs';
@@ -14,8 +14,14 @@ export class AlgoliaPlugin implements SearchPlugin {
   originalIndex: SearchIndex;
   newIndex: SearchIndex;
   customConfig?: Record<string, unknown>;
+  keepNonCrawlerRecords?: boolean;
 
-  constructor(opts: AlgoliaPluginOptions) {
+  constructor(opts: Partial<AlgoliaPluginOptions & GeneralPluginSettings>) {
+    if (!opts.apiKey || !opts.appId || !opts.indexName) {
+      throw new Error(
+        'one or more of the following options is missing from the Algolia plugin initializer: apiKey, appId, indexName'
+      );
+    }
     this.apiKey = opts.apiKey;
     this.appId = opts.appId;
     this.indexName = opts.indexName;
@@ -27,6 +33,9 @@ export class AlgoliaPlugin implements SearchPlugin {
         typeof opts.customConfig === 'string'
           ? parseAlgoliaConfig(opts.customConfig)
           : opts.customConfig;
+    }
+    if (opts.keepNonCrawlerRecords) {
+      this.keepNonCrawlerRecords = opts.keepNonCrawlerRecords;
     }
   }
 
@@ -63,6 +72,27 @@ export class AlgoliaPlugin implements SearchPlugin {
   }
 
   async finish() {
+    // if keepNonCrawlerRecords has been set to true, find all records in the original index that were not indexed by the spider,
+    // and add them to the new index
+    if (this.keepNonCrawlerRecords) {
+      const hits: any[] = [];
+      await this.originalIndex.browseObjects<any>({
+        batch: (batch) => {
+          batch.forEach((item) => {
+            if (item.originType !== 'siteSearchRecord') {
+              hits.push(item);
+            }
+          });
+        }
+      });
+      await this.client.multipleBatch(
+        hits.map((hit) => ({
+          action: 'updateObject',
+          indexName: `${this.indexName}_new`,
+          body: hit
+        }))
+      );
+    }
     await this.client.moveIndex(`${this.indexName}_new`, this.indexName);
   }
 }

@@ -4,6 +4,7 @@ export const transformRecord = (record: ScrapedRecord) => {
   const { uniqueId, ...rest } = record;
   return {
     ...rest,
-    objectID: uniqueId
+    objectID: uniqueId,
+    originType: 'siteSearchRecord'
   };
 };

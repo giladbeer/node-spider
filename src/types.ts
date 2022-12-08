@@ -84,3 +84,21 @@ export interface SpiderOptions {
   /** predicate for excluding a result from being indexed. Returns true if the result should be excluded */
   shouldExcludeResult?: (content: string) => boolean;
 }
+
+export type CrawlSiteOptionsCrawlerConfig = Pick<
+  SpiderOptions,
+  | 'allowedDomains'
+  | 'maxConcurrency'
+  | 'selectors'
+  | 'startUrls'
+  | 'userAgent'
+  | 'ignoreUrls'
+  | 'excludeSelectors'
+  | 'respectRobotsMeta'
+  | 'diagnostics'
+  | 'diagnosticsFilePath'
+  | 'timeout'
+  | 'maxIndexedRecords'
+  | 'minResultLength'
+  | 'logLevel'
+>;
