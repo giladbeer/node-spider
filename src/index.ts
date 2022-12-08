@@ -71,7 +71,7 @@ export const crawlSite = async (options: CrawlSiteOptions) => {
         : undefined;
     const spider = new Spider({
       ...config,
-      ...options.searchEngineOpts,
+      searchEngineOpts: options.searchEngineOpts,
       logger,
       diagnostics,
       diagnosticsService,
