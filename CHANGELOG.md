@@ -1,3 +1,12 @@
+## [0.6.13](https://github.com/giladbeer/node-spider/compare/v0.6.12...v0.6.13) (2022-12-08)
+
+
+### fix
+
+* bugs in logic for keeping non crawler records ([242d3c2](https://github.com/giladbeer/node-spider/commit/242d3c209c6f991f578cfec58d4e1ea1a1d67092))
+
+
+
 ## [0.6.12](https://github.com/giladbeer/node-spider/compare/v0.6.11...v0.6.12) (2022-12-08)
 
 
@@ -31,15 +40,6 @@
 ### update
 
 * remove search duplicates ([73d238d](https://github.com/giladbeer/node-spider/commit/73d238d375688b037890804c285aac666e2441b5))
-
-
-
-## [0.6.8](https://github.com/giladbeer/node-spider/compare/v0.6.7...v0.6.8) (2022-11-23)
-
-
-### update
-
-* include title in the response based on l0 ([4c13107](https://github.com/giladbeer/node-spider/commit/4c13107c020cc6be4613d972f108ea751317cf28))
 
 
 
