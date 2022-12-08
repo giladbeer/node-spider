@@ -10,7 +10,8 @@ export const buildAlgoliaConfig = () => {
       'l4',
       'url',
       'content',
-      'title'
+      'title',
+      'originType'
     ],
     searchableAttributes: [
       'l0',
@@ -22,6 +23,7 @@ export const buildAlgoliaConfig = () => {
       'content',
       'title'
     ],
+    attributesForFaceting: ['filterOnly(originType)'],
     ranking: [
       'words',
       'filters',

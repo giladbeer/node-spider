@@ -75,23 +75,26 @@ export class AlgoliaPlugin implements SearchPlugin {
     // if keepNonCrawlerRecords has been set to true, find all records in the original index that were not indexed by the spider,
     // and add them to the new index
     if (this.keepNonCrawlerRecords) {
-      const hits: any[] = [];
-      await this.originalIndex.browseObjects<any>({
-        batch: (batch) => {
-          batch.forEach((item) => {
-            if (item.originType !== 'siteSearchRecord') {
-              hits.push(item);
-            }
-          });
-        }
-      });
-      await this.client.multipleBatch(
-        hits.map((hit) => ({
-          action: 'updateObject',
-          indexName: `${this.indexName}_new`,
-          body: hit
-        }))
-      );
+      const oldIndexExists = await this.originalIndex.exists();
+      if (oldIndexExists) {
+        const hits: any[] = [];
+        await this.originalIndex.browseObjects<any>({
+          batch: (batch) => {
+            batch.forEach((item) => {
+              if (item.originType !== 'siteSearchRecord') {
+                hits.push(item);
+              }
+            });
+          }
+        });
+        await this.client.multipleBatch(
+          hits.map((hit) => ({
+            action: 'updateObject',
+            indexName: `${this.indexName}_new`,
+            body: hit
+          }))
+        );
+      }
     }
     await this.client.moveIndex(`${this.indexName}_new`, this.indexName);
   }
