@@ -1,3 +1,12 @@
+## [0.6.12](https://github.com/giladbeer/node-spider/compare/v0.6.11...v0.6.12) (2022-12-08)
+
+
+### fix
+
+* correct passing of searchEngineOpts ([140f626](https://github.com/giladbeer/node-spider/commit/140f62659691f2bb92d00db88868329aabcee657))
+
+
+
 ## [0.6.11](https://github.com/giladbeer/node-spider/compare/v0.6.10...v0.6.11) (2022-12-08)
 
 
@@ -31,15 +40,6 @@
 ### update
 
 * include title in the response based on l0 ([4c13107](https://github.com/giladbeer/node-spider/commit/4c13107c020cc6be4613d972f108ea751317cf28))
-
-
-
-## [0.6.7](https://github.com/giladbeer/node-spider/compare/v0.6.6...v0.6.7) (2022-11-23)
-
-
-### chore
-
-* license ([601eb46](https://github.com/giladbeer/node-spider/commit/601eb46d4cd85f91731e2f014cae898f30c94f7b))
 
 
 
