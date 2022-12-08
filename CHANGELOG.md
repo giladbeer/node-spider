@@ -1,3 +1,12 @@
+## [0.6.11](https://github.com/giladbeer/node-spider/compare/v0.6.10...v0.6.11) (2022-12-08)
+
+
+### update
+
+* move more options to config, add algolia backup ([7d68a77](https://github.com/giladbeer/node-spider/commit/7d68a77a104cfa2dee7e7e34ea5ad603535654ce))
+
+
+
 ## [0.6.10](https://github.com/giladbeer/node-spider/compare/v0.6.9...v0.6.10) (2022-11-24)
 
 
@@ -31,15 +40,6 @@
 ### chore
 
 * license ([601eb46](https://github.com/giladbeer/node-spider/commit/601eb46d4cd85f91731e2f014cae898f30c94f7b))
-
-
-
-## [0.6.6](https://github.com/giladbeer/node-spider/compare/v0.6.5...v0.6.6) (2022-11-23)
-
-
-### chore
-
-* add registry-url to setup node ([40a4349](https://github.com/giladbeer/node-spider/commit/40a43490875b7bad317c07606951e394df3d3693))
 
 
 
