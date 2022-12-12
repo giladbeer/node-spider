@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/giladbeer/node-spider/compare/v0.6.13...v0.7.0) (2022-12-12)
+
+
+### new
+
+* add support for metadata config, allowing you to index additional custom fields ([39c69c6](https://github.com/giladbeer/node-spider/commit/39c69c6dee1258557c177b4ece669cd6941232c4))
+
+
+
 ## [0.6.13](https://github.com/giladbeer/node-spider/compare/v0.6.12...v0.6.13) (2022-12-08)
 
 
@@ -31,15 +40,6 @@
 ### update
 
 * minResultLength, badges ([64ba4e1](https://github.com/giladbeer/node-spider/commit/64ba4e1e42c6325787e67d8de0608e3cee49772c))
-
-
-
-## [0.6.9](https://github.com/giladbeer/node-spider/compare/v0.6.8...v0.6.9) (2022-11-24)
-
-
-### update
-
-* remove search duplicates ([73d238d](https://github.com/giladbeer/node-spider/commit/73d238d375688b037890804c285aac666e2441b5))
 
 
 
