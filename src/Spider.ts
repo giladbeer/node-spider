@@ -4,7 +4,11 @@ import { getContentMatchLevel, getLevelWeight } from './hierarchy';
 import { Logger } from './Logger';
 import { SearchPlugin, SearchPluginOptions } from './search-plugins/interfaces';
 import { getPlugin } from './search-plugins/pluginRegistry';
-import { findActiveSelectorSet, removeExcludedElements } from './selectors';
+import {
+  findActiveSelectorSet,
+  getSelectorMetadata,
+  removeExcludedElements
+} from './selectors';
 import { ScrapedRecord, Selectors, SpiderOptions } from './types';
 import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
 import { getSelectorMatches } from './selectors';
@@ -167,6 +171,9 @@ export class Spider {
         await page.exposeFunction('uniq', uniq);
         const { selectorMatches, selectorMatchesByLevel, title } =
           await page.evaluate(getSelectorMatches, { selectorSet });
+        const metadata = await page.evaluate(getSelectorMetadata, {
+          selectorSet
+        });
 
         const records: ScrapedRecord[] = [];
         selectorMatches.forEach((contentMatch) => {
@@ -194,6 +201,7 @@ export class Spider {
                 l4: level === 'l4' ? contentMatch : '',
                 content: level === 'content' ? contentMatch : ''
               },
+              metadata,
               weight: {
                 level: getLevelWeight(level),
                 pageRank: selectorSet.pageRank || 0

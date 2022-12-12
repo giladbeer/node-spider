@@ -11,6 +11,9 @@ const run = async () => {
         apiKey: process.env.ALGOLIA_ADMIN_API_KEY,
         appId: process.env.ALGOLIA_APP_ID,
         indexName: process.env.ALGOLIA_INDEX_NAME
+      },
+      generalSettings: {
+        keepNonCrawlerRecords: true
       }
     }
   });

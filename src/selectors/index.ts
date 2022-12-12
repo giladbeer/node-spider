@@ -52,6 +52,24 @@ export async function getSelectorMatches({
   };
 }
 
+// runs in browser context (puppeteer's page.evaluate()), so external functions are available using page.expose() and have to be awaited
+// even if they are synchronous (e.g. uniq)
+export async function getSelectorMetadata({
+  selectorSet
+}: {
+  selectorSet: SelectorSet;
+}) {
+  const metadataSelectors = Object.entries(selectorSet.metadata || {});
+  const metadata: Record<string, any> = {};
+  metadataSelectors.forEach(([propertyName, selector]) => {
+    const matches = Array.from(document.querySelectorAll(selector))
+      .map((node) => node.textContent || (node as HTMLMetaElement).content)
+      .filter(Boolean);
+    metadata[propertyName] = matches?.join();
+  });
+  return metadata;
+}
+
 export async function removeExcludedElements({
   exclude
 }: {
