@@ -15,7 +15,18 @@
         "l3": "main h3",
         "l4": "main h4",
         "content": "main p"
+      },
+      "metadata": {
+        "ie": "meta[content^='ie']"
       }
+    },
+    "about": {
+      "hierarchy": {
+        "l0": "title",
+        "l1": "main h1",
+        "content": "main p"
+      },
+      "urlPattern": "(.)*about(.)*"
     }
   },
   "onlyContentLevel": true,

@@ -11,15 +11,25 @@ export interface Hierarchy {
   content: keyof HTMLElementTagNameMap;
 }
 
+export interface Metadata {
+  [key: string]: keyof HTMLElementTagNameMap;
+}
+
 export type Level = keyof Hierarchy;
 
 export interface SelectorSet {
+  /** hierarchy config. Essentially a mapping from html selectors to indexed hierarchy level */
   hierarchy: Hierarchy;
+  /** metadata config. Mapping from html selectors to custom additional fields in the index, e.g. can scrape meta tags of a certain content pattern and store under a custom field */
+  metadata?: Metadata;
+  /** the url pattern to which this selector set config should apply */
   urlPattern?: string;
+  /** custom page rank for the specified url pattern */
   pageRank?: number;
 }
 
 export interface Selectors {
+  /** the default selector set config */
   default: Omit<SelectorSet, 'urlPattern'>;
   [name: string]: SelectorSet;
 }
@@ -41,6 +51,7 @@ export interface ScrapedRecord {
     level?: number;
     pageRank?: number;
   };
+  metadata?: Record<string, string>;
 }
 
 /**
