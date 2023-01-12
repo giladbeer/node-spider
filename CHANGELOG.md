@@ -1,3 +1,12 @@
+## [0.7.1](https://github.com/giladbeer/node-spider/compare/v0.7.0...v0.7.1) (2023-01-12)
+
+
+### update
+
+* fix incorrect link in readme ([fd82296](https://github.com/giladbeer/node-spider/commit/fd82296dc3df9c4e645f77274e0695e2c2582e00))
+
+
+
 # [0.7.0](https://github.com/giladbeer/node-spider/compare/v0.6.13...v0.7.0) (2022-12-12)
 
 
@@ -31,15 +40,6 @@
 ### update
 
 * move more options to config, add algolia backup ([7d68a77](https://github.com/giladbeer/node-spider/commit/7d68a77a104cfa2dee7e7e34ea5ad603535654ce))
-
-
-
-## [0.6.10](https://github.com/giladbeer/node-spider/compare/v0.6.9...v0.6.10) (2022-11-24)
-
-
-### update
-
-* minResultLength, badges ([64ba4e1](https://github.com/giladbeer/node-spider/commit/64ba4e1e42c6325787e67d8de0608e3cee49772c))
 
 
 
