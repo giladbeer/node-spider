@@ -13,7 +13,7 @@ NOTE: The project is in a very early stage.
 
 node-spider lets you crawl your website, scrape content that matches html selectors you specified in a config file, then index them in a search engine (currently only supports Algolia) to serve your site search features.
 
-Under the hood, the project uses [puppeteer-cluster](https://github.com/giladbeer/node-spider), which in turn uses [puppeteer](https://github.com/puppeteer/puppeteer)
+Under the hood, the project uses [puppeteer-cluster](https://github.com/thomasdondorf/puppeteer-cluster), which in turn uses [puppeteer](https://github.com/puppeteer/puppeteer)
 
 ## getting started
 
