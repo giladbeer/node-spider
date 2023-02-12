@@ -1,3 +1,13 @@
+## [0.7.2](https://github.com/giladbeer/node-spider/compare/v0.7.1...v0.7.2) (2023-02-12)
+
+
+### update
+
+* accumulated hierarchy for each page ([ed0d3a6](https://github.com/giladbeer/node-spider/commit/ed0d3a64354a22d5b096fd754d3b4e8e67003c86))
+* remove unused type ([c3ecf8e](https://github.com/giladbeer/node-spider/commit/c3ecf8e5de58dec919cfe0123c27abd62491d65c))
+
+
+
 ## [0.7.1](https://github.com/giladbeer/node-spider/compare/v0.7.0...v0.7.1) (2023-01-12)
 
 
@@ -31,15 +41,6 @@
 ### fix
 
 * correct passing of searchEngineOpts ([140f626](https://github.com/giladbeer/node-spider/commit/140f62659691f2bb92d00db88868329aabcee657))
-
-
-
-## [0.6.11](https://github.com/giladbeer/node-spider/compare/v0.6.10...v0.6.11) (2022-12-08)
-
-
-### update
-
-* move more options to config, add algolia backup ([7d68a77](https://github.com/giladbeer/node-spider/commit/7d68a77a104cfa2dee7e7e34ea5ad603535654ce))
 
 
 
