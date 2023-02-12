@@ -9,7 +9,7 @@ import {
   getSelectorMetadata,
   removeExcludedElements
 } from './selectors';
-import { Hierarchy, ScrapedRecord, Selectors, SpiderOptions } from './types';
+import { ScrapedRecord, Selectors, SpiderOptions } from './types';
 import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
 import { getSelectorMatches } from './selectors';
 import { md5 } from './utils/hashing';
