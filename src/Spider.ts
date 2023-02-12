@@ -9,7 +9,7 @@ import {
   getSelectorMetadata,
   removeExcludedElements
 } from './selectors';
-import { ScrapedRecord, Selectors, SpiderOptions } from './types';
+import { Hierarchy, ScrapedRecord, Selectors, SpiderOptions } from './types';
 import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
 import { getSelectorMatches } from './selectors';
 import { md5 } from './utils/hashing';
@@ -176,6 +176,14 @@ export class Spider {
         });
 
         const records: ScrapedRecord[] = [];
+        const hierarchy: ScrapedRecord['hierarchy'] = {
+          l0: '',
+          l1: '',
+          l2: '',
+          l3: '',
+          l4: '',
+          content: ''
+        };
         selectorMatches.forEach((contentMatch) => {
           if (
             contentMatch &&
@@ -188,19 +196,13 @@ export class Spider {
               contentMatch,
               selectorMatchesByLevel
             );
+            hierarchy[level] = contentMatch;
             records.push({
               uniqueId: md5(`${url}${contentMatch}`),
               url,
               content: contentMatch,
               title,
-              hierarchy: {
-                l0: level === 'l0' ? contentMatch : '',
-                l1: level === 'l1' ? contentMatch : '',
-                l2: level === 'l2' ? contentMatch : '',
-                l3: level === 'l3' ? contentMatch : '',
-                l4: level === 'l4' ? contentMatch : '',
-                content: level === 'content' ? contentMatch : ''
-              },
+              hierarchy,
               metadata,
               weight: {
                 level: getLevelWeight(level),
