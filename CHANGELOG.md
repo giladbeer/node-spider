@@ -1,3 +1,12 @@
+## [0.7.3](https://github.com/giladbeer/node-spider/compare/v0.7.2...v0.7.3) (2023-02-17)
+
+
+### update
+
+* only content matches ([07c77f5](https://github.com/giladbeer/node-spider/commit/07c77f50b48fb979e883966e1d26bc2770d56393))
+
+
+
 ## [0.7.2](https://github.com/giladbeer/node-spider/compare/v0.7.1...v0.7.2) (2023-02-12)
 
 
@@ -32,15 +41,6 @@
 ### fix
 
 * bugs in logic for keeping non crawler records ([242d3c2](https://github.com/giladbeer/node-spider/commit/242d3c209c6f991f578cfec58d4e1ea1a1d67092))
-
-
-
-## [0.6.12](https://github.com/giladbeer/node-spider/compare/v0.6.11...v0.6.12) (2022-12-08)
-
-
-### fix
-
-* correct passing of searchEngineOpts ([140f626](https://github.com/giladbeer/node-spider/commit/140f62659691f2bb92d00db88868329aabcee657))
 
 
 
