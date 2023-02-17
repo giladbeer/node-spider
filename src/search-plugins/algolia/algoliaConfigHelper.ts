@@ -39,7 +39,7 @@ export const buildAlgoliaConfig = () => {
     maxValuesPerFacet: 100,
     minProximity: 1,
     customRanking: [
-      'desc(weight.page_rank)',
+      'desc(weight.pageRank)',
       'desc(weight.level)'
       // TODO - think if we need this
       // 'asc(weight.position)'

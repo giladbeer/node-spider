@@ -171,6 +171,8 @@ export class Spider {
         await page.exposeFunction('uniq', uniq);
         const { selectorMatches, selectorMatchesByLevel, title } =
           await page.evaluate(getSelectorMatches, { selectorSet });
+        console.log(selectorMatches);
+        console.log(selectorMatchesByLevel);
         const metadata = await page.evaluate(getSelectorMetadata, {
           selectorSet
         });
@@ -197,18 +199,20 @@ export class Spider {
               selectorMatchesByLevel
             );
             hierarchy[level] = contentMatch;
-            records.push({
-              uniqueId: md5(`${url}${contentMatch}`),
-              url,
-              content: contentMatch,
-              title,
-              hierarchy,
-              metadata,
-              weight: {
-                level: getLevelWeight(level),
-                pageRank: selectorSet.pageRank || 0
-              }
-            });
+            if (!selectorSet.onlyContentLevel || level === 'content') {
+              records.push({
+                uniqueId: md5(`${url}${contentMatch}`),
+                url,
+                content: contentMatch,
+                title,
+                hierarchy: { ...hierarchy },
+                metadata,
+                weight: {
+                  level: getLevelWeight(level),
+                  pageRank: selectorSet.pageRank || 0
+                }
+              });
+            }
           }
         });
 

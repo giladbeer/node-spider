@@ -26,6 +26,8 @@ export interface SelectorSet {
   urlPattern?: string;
   /** custom page rank for the specified url pattern */
   pageRank?: number;
+  /** when set to true, only 'content' matches will be indexed */
+  onlyContentLevel?: boolean;
 }
 
 export interface Selectors {
