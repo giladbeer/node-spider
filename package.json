@@ -15,7 +15,9 @@
     "dev": "rollup --config -w",
     "publish": "yarn build && npm publish --access public",
     "check-circular-deps": "dpdm --exit-code circular:1 --tree false --warning false --ext \".js,.jsx,.ts,.tsx\" ./src/*",
-    "test": "yarn jest --testTimeout=120000"
+    "test:unit": "yarn jest ./src/utils",
+    "test:server": "http-server -p 8080 ./src/e2eTests/test-pages",
+    "test:e2e": "yarn jest ./src/e2eTests --testTimeout=120000"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -42,11 +44,14 @@
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
     "algoliasearch": ">= 4.14.2 < 5",
+    "concurrently": "^7.6.0",
     "dotenv": "^16.0.3",
     "dpdm": "^3.10.0",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "http-server": "^14.1.1",
+    "http-shutdown": "^1.2.2",
     "jest": "^29.4.3",
     "prettier": "^2.7.1",
     "puppeteer": ">= 19.2.2 < 20",
@@ -57,7 +62,8 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "ts-jest": "^29.0.5",
     "tslib": "^2.4.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "wait-on": "^7.0.1"
   },
   "peerDependencies": {
     "algoliasearch": ">= 4.14.2 < 5",
