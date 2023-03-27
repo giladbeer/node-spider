@@ -202,7 +202,7 @@ export class Spider {
             if (!selectorSet.onlyContentLevel || level === 'content') {
               records.push({
                 uniqueId: md5(`${url}${contentMatch}`),
-                url,
+                url: url.replace('www.', ''),
                 content: contentMatch,
                 title,
                 hierarchy: { ...hierarchy },
@@ -319,7 +319,7 @@ export class Spider {
 
     await cluster.idle();
     await cluster.close();
-    if (this.searchPlugin?.finish) {
+    if (this.searchPlugin) {
       await this.searchPlugin.finish();
     }
     this.logger.debug(`Done!`, {

@@ -3,22 +3,22 @@ import * as fs from 'fs';
 export const buildAlgoliaConfig = () => {
   const config = {
     attributesToRetrieve: [
-      'l0',
-      'l1',
-      'l2',
-      'l3',
-      'l4',
+      'hierarchy.l0',
+      'hierarchy.l1',
+      'hierarchy.l2',
+      'hierarchy.l3',
+      'hierarchy.l4',
       'url',
       'content',
       'title',
       'originType'
     ],
     searchableAttributes: [
-      'l0',
-      'l1',
-      'l2',
-      'l3',
-      'l4',
+      'hierarchy.l0',
+      'hierarchy.l1',
+      'hierarchy.l2',
+      'hierarchy.l3',
+      'hierarchy.l4',
       'url',
       'content',
       'title'

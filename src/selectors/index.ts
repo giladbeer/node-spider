@@ -1,5 +1,5 @@
 import { Selectors } from '../types';
-import { withoutTrailingSlash, uniq } from '../utils';
+import { withoutTrailingSlash } from '../utils';
 import { Level, SelectorSet } from '../types';
 
 export function findActiveSelectorSet(
@@ -28,7 +28,9 @@ export async function getSelectorMatches({
 }) {
   const levels = Object.keys(selectorSet.hierarchy) as Level[];
   const selectors = (
-    await uniq(Object.values(selectorSet.hierarchy).join(',').split(','))
+    await (window as any).uniq(
+      Object.values(selectorSet.hierarchy).join(',').split(',')
+    )
   ).join(',');
   const selectorMatches = Array.from(document.querySelectorAll(selectors))
     .map((node) => node.textContent)

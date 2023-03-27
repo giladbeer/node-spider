@@ -1,0 +1,31 @@
+{
+  "maxConcurrency": 1,
+  "startUrls": [
+    "https://www.levande.com.au"
+  ],
+  "ignoreUrls": [
+    "(.)*contact-us(.)*"
+  ],
+  "selectors": {
+    "default": {
+      "hierarchy": {
+        "l0": "title",
+        "l1": "main h1",
+        "l2": "main h2",
+        "l3": "main h3",
+        "l4": "main h4",
+        "content": "main p"
+      },
+      "onlyContentLevel": true
+    }
+  },
+  "excludeSelectors": [
+    "header",
+    "footer"
+  ],
+  "userAgent": "Maker.tech Custom Algolia Crawler",
+  "respectRobotsMeta": true,
+  "diagnostics": true,
+  "logLevel": "debug",
+  "maxIndexedRecords": 1
+}

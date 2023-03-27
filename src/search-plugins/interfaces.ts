@@ -2,9 +2,9 @@ import { AlgoliaPluginOptions } from './algolia/types';
 
 export interface SearchPlugin {
   addRecords: (records: any[]) => Promise<void>;
-  generateConfig: () => Promise<any>;
+  generateConfig?: () => Promise<any>;
   init?: () => Promise<void>;
-  finish?: () => Promise<void>;
+  finish: () => Promise<void>;
 }
 
 export interface GeneralPluginSettings {
@@ -13,7 +13,7 @@ export interface GeneralPluginSettings {
   keepNonCrawlerRecords?: boolean;
 }
 
-export type SearchEngineName = 'algolia' | 'elasticsearch';
+export type SearchEngineName = 'algolia' | 'elasticsearch' | 'test';
 
 export interface SearchPluginOptions {
   generalSettings: GeneralPluginSettings;
