@@ -1,3 +1,12 @@
+## [0.7.4](https://github.com/giladbeer/node-spider/compare/v0.7.3...v0.7.4) (2023-03-27)
+
+
+### update
+
+* test setup ([9e66e61](https://github.com/giladbeer/node-spider/commit/9e66e61a78ddd789e405de7d29324b853879253e))
+
+
+
 ## [0.7.3](https://github.com/giladbeer/node-spider/compare/v0.7.2...v0.7.3) (2023-02-17)
 
 
@@ -32,15 +41,6 @@
 ### new
 
 * add support for metadata config, allowing you to index additional custom fields ([39c69c6](https://github.com/giladbeer/node-spider/commit/39c69c6dee1258557c177b4ece669cd6941232c4))
-
-
-
-## [0.6.13](https://github.com/giladbeer/node-spider/compare/v0.6.12...v0.6.13) (2022-12-08)
-
-
-### fix
-
-* bugs in logic for keeping non crawler records ([242d3c2](https://github.com/giladbeer/node-spider/commit/242d3c209c6f991f578cfec58d4e1ea1a1d67092))
 
 
 
