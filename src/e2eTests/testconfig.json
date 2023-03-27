@@ -1,0 +1,41 @@
+{
+  "maxConcurrency": 1,
+  "startUrls": [
+    "https://www.google.com"
+  ],
+  "ignoreUrls": [
+    "(.)*&utm_source(.)*"
+  ],
+  "selectors": {
+    "default": {
+      "hierarchy": {
+        "l0": "title",
+        "l1": "main h1",
+        "l2": "main h2",
+        "l3": "main h3",
+        "l4": "main h4",
+        "content": "main p"
+      },
+      "metadata": {
+        "ie": "meta[content^='ie']"
+      }
+    },
+    "about": {
+      "hierarchy": {
+        "l0": "title",
+        "l1": "main h1",
+        "content": "main p"
+      },
+      "urlPattern": "(.)*about(.)*"
+    }
+  },
+  "onlyContentLevel": true,
+  "excludeSelectors": [
+    "header",
+    "footer"
+  ],
+  "userAgent": "Agent Smith",
+  "diagnostics": true,
+  "logLevel": "debug",
+  "maxIndexedRecords": 300
+}

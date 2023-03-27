@@ -8,8 +8,11 @@ export const withoutTrailingSlash = (s: string) => {
 
 export const urlToDomain = (urlString: string) => {
   try {
+    if (!urlString.startsWith('http')) {
+      urlString = 'https://' + urlString;
+    }
     const url = new URL(urlString);
-    return url.hostname.replace('www', '');
+    return url.hostname.replace('www.', '');
   } catch (error) {
     return '';
   }
