@@ -96,6 +96,8 @@ export interface SpiderOptions {
   minResultLength?: number;
   /** predicate for excluding a result from being indexed. Returns true if the result should be excluded */
   shouldExcludeResult?: (content: string) => boolean;
+  /** whether or not the spider should follow links in the initial page(s). Defaults to true */
+  followLinks?: boolean;
 }
 
 export type CrawlSiteOptionsCrawlerConfig = Pick<
@@ -114,4 +116,5 @@ export type CrawlSiteOptionsCrawlerConfig = Pick<
   | 'maxIndexedRecords'
   | 'minResultLength'
   | 'logLevel'
+  | 'followLinks'
 >;

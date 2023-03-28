@@ -3,30 +3,23 @@
   "startUrls": [
     "http://localhost:8080/test-page-1.html"
   ],
-  "ignoreUrls": [
-    "(.)*&utm_source(.)*"
+  "allowedDomains": [
+    "localhost"
   ],
+  "followLinks": false,
   "selectors": {
     "default": {
       "hierarchy": {
         "l0": "title",
-        "l1": "main h1",
-        "l2": "main h2",
-        "l3": "main h3",
-        "l4": "main h4",
-        "content": "main p"
+        "l1": "#content h1",
+        "l2": "#content h2",
+        "l3": "#content h3",
+        "l4": "#content h4",
+        "content": "#content p"
       },
       "metadata": {
         "ie": "meta[content^='ie']"
       }
-    },
-    "about": {
-      "hierarchy": {
-        "l0": "title",
-        "l1": "main h1",
-        "content": "main p"
-      },
-      "urlPattern": "(.)*about(.)*"
     }
   },
   "onlyContentLevel": true,
@@ -37,5 +30,7 @@
   "userAgent": "Agent Smith",
   "diagnostics": true,
   "logLevel": "debug",
-  "maxIndexedRecords": 300
+  "maxIndexedRecords": 10
 }
+
+

@@ -37,6 +37,7 @@ export class Spider {
   respectRobotsMeta: boolean;
   minResultLength?: number;
   shouldExcludeResult?: (content: string) => boolean;
+  followLinks?: boolean;
 
   constructor(opts: SpiderOptions) {
     if (typeof opts.startUrls === 'string') {
@@ -87,6 +88,7 @@ export class Spider {
     if (opts.minResultLength) {
       this.minResultLength = opts.minResultLength;
     }
+    this.followLinks = opts.followLinks === false ? false : true;
   }
 
   registerSearchPlugin(options: SearchPluginOptions) {
@@ -121,6 +123,10 @@ export class Spider {
 
     await cluster.task(async ({ page, data: url }) => {
       try {
+        url = url
+          .replace('www.', '')
+          .replace(/\?(.)*/, '')
+          .replace(/#(.)*/, '');
         this.remainingQueueSize--;
         if (this.stopping) {
           return;
@@ -202,7 +208,7 @@ export class Spider {
             if (!selectorSet.onlyContentLevel || level === 'content') {
               records.push({
                 uniqueId: md5(`${url}${contentMatch}`),
-                url: url.replace('www.', ''),
+                url,
                 content: contentMatch,
                 title,
                 hierarchy: { ...hierarchy },
@@ -272,34 +278,36 @@ export class Spider {
           await cluster.close();
           return;
         }
-        const allLinks = uniq(
-          (
-            await page.evaluate((resultsSelector: string) => {
-              return Array.from(document.querySelectorAll(resultsSelector)).map(
-                (anchor) => {
+        if (this.followLinks) {
+          const allLinks = uniq(
+            (
+              await page.evaluate((resultsSelector: string) => {
+                return Array.from(
+                  document.querySelectorAll(resultsSelector)
+                ).map((anchor) => {
                   return (anchor as HTMLAnchorElement).href;
-                }
-              );
-            }, 'a')
-          )?.map((link) => withoutTrailingSlash(link))
-        );
-        this.logger.debug(`found links`, allLinks);
-        const linksToCrawl = allLinks.filter(
-          (link: string) =>
-            !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
-            !this.visitedUrls.includes(link) &&
-            this.allowedDomains.includes(urlToDomain(link))
-        );
-        this.logger.debug(`marked links for crawling`, linksToCrawl);
-        this.diagnosticsService?.addStat({
-          name: `scrapedPages > ${url} > numLinks`,
-          num: allLinks.length
-        });
-        linksToCrawl.forEach((link: string) => {
-          this.visitedUrls.push(link);
-          cluster.queue(link);
-          this.remainingQueueSize++;
-        });
+                });
+              }, 'a')
+            )?.map((link) => withoutTrailingSlash(link))
+          );
+          this.logger.debug(`found links`, allLinks);
+          const linksToCrawl = allLinks.filter(
+            (link: string) =>
+              !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
+              !this.visitedUrls.includes(link) &&
+              this.allowedDomains.includes(urlToDomain(link))
+          );
+          this.logger.debug(`marked links for crawling`, linksToCrawl);
+          this.diagnosticsService?.addStat({
+            name: `scrapedPages > ${url} > numLinks`,
+            num: allLinks.length
+          });
+          linksToCrawl.forEach((link: string) => {
+            this.visitedUrls.push(link);
+            cluster.queue(link);
+            this.remainingQueueSize++;
+          });
+        }
         this.scrapedUrls++;
         this.logger.debug(`finished scraping url ${url}`, {
           remainingQueueSize: this.remainingQueueSize,
