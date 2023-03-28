@@ -30,14 +30,6 @@ jobs:
         run: |
           yarn
 
-      - name: Run test server
+      - name: Run e2e tests
         run: |
-          yarn test:server
-
-      # - name: Build
-      #   run: |
-      #     yarn build
-
-      # - name: Run unit tests
-      #   run: |
-      #     yarn test:unit:CI
+          yarn test:e2e-CI
