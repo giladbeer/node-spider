@@ -2,6 +2,11 @@ import { Selectors } from '../types';
 import { withoutTrailingSlash } from '../utils';
 import { Level, SelectorSet } from '../types';
 
+/**
+ * returns the set of selector rules that matches the current page's url, based on the selector set's urlPattern property
+ * @param selectors - all selector sets from the spider's config
+ * @param currentUrl - url of the current page that is being crawled
+ */
 export function findActiveSelectorSet(
   selectors: Selectors,
   currentUrl: string

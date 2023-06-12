@@ -14,32 +14,46 @@ import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
 import { getSelectorMatches } from './selectors';
 import { md5 } from './utils/hashing';
 
-export class Spider {
-  startUrls: string[];
-  ignoreUrls: string[];
-  allowedDomains: string[];
-  maxConcurrency: number;
-  userAgent?: string;
+interface SpiderState {
   visitedUrls: string[];
-  selectors: Selectors;
-  searchPlugin?: SearchPlugin;
-  logger: Logger;
-  diagnostics?: boolean;
-  diagnosticsService?: DiagnosticsService;
-  timeout?: number;
   remainingQueueSize: number;
   scrapedUrls: number;
   indexedRecords: number;
   lastStartTime?: number;
-  maxIndexedRecords?: number;
   stopping: boolean;
-  excludeSelectors?: string[];
-  respectRobotsMeta: boolean;
-  minResultLength?: number;
+}
+
+export class Spider {
+  state: SpiderState;
+
+  readonly startUrls: string[];
+  readonly ignoreUrls: string[];
+  readonly allowedDomains: string[];
+  readonly maxConcurrency: number;
+  readonly userAgent?: string;
+  readonly selectors: Selectors;
+  readonly timeout?: number;
+  readonly maxIndexedRecords?: number;
+  readonly excludeSelectors?: string[];
+  readonly respectRobotsMeta: boolean;
+  readonly minResultLength?: number;
+  readonly followLinks?: boolean;
+
+  searchPlugin?: SearchPlugin;
+  logger: Logger;
+  diagnostics?: boolean;
+  diagnosticsService?: DiagnosticsService;
+
   shouldExcludeResult?: (content: string) => boolean;
-  followLinks?: boolean;
 
   constructor(opts: SpiderOptions) {
+    this.state = {
+      visitedUrls: [],
+      remainingQueueSize: 0,
+      scrapedUrls: 0,
+      indexedRecords: 0,
+      stopping: false
+    };
     if (typeof opts.startUrls === 'string') {
       this.startUrls = [opts.startUrls];
     } else if (typeof opts.startUrls === 'object') {
@@ -57,7 +71,6 @@ export class Spider {
     if (opts.userAgent) {
       this.userAgent = opts.userAgent;
     }
-    this.visitedUrls = [];
     this.selectors = opts.selectors;
     this.logger = opts.logger || Logger.getInstance(opts.logLevel);
     if (opts.searchEngineOpts) {
@@ -73,16 +86,13 @@ export class Spider {
       : undefined;
     this.timeout = opts.timeout || 0;
     this.ignoreUrls = opts.ignoreUrls?.map(withoutTrailingSlash) || [];
-    this.remainingQueueSize = 0;
-    this.scrapedUrls = 0;
-    this.indexedRecords = 0;
+
     if (opts.maxIndexedRecords) {
       this.maxIndexedRecords = opts.maxIndexedRecords;
     }
     if (opts.excludeSelectors) {
       this.excludeSelectors = opts.excludeSelectors;
     }
-    this.stopping = false;
     this.respectRobotsMeta = opts.respectRobotsMeta || false;
     this.shouldExcludeResult = opts.shouldExcludeResult;
     if (opts.minResultLength) {
@@ -108,11 +118,11 @@ export class Spider {
   }
 
   async crawl() {
-    this.stopping = false;
+    this.state.stopping = false;
     if (this.searchPlugin?.init) {
       await this.searchPlugin.init();
     }
-    this.lastStartTime = Date.now();
+    this.state.lastStartTime = Date.now();
     const cluster = await Cluster.launch({
       concurrency: Cluster.CONCURRENCY_CONTEXT,
       maxConcurrency: this.maxConcurrency,
@@ -127,8 +137,8 @@ export class Spider {
           .replace('www.', '')
           .replace(/\?(.)*/, '')
           .replace(/#(.)*/, '');
-        this.remainingQueueSize--;
-        if (this.stopping) {
+        this.state.remainingQueueSize--;
+        if (this.state.stopping) {
           return;
         }
         // page
@@ -225,10 +235,10 @@ export class Spider {
         let hasReachedMax = false;
         if (
           this.maxIndexedRecords &&
-          this.indexedRecords + records.length >= this.maxIndexedRecords
+          this.state.indexedRecords + records.length >= this.maxIndexedRecords
         ) {
           hasReachedMax = true;
-          records.splice(0, this.maxIndexedRecords - this.indexedRecords);
+          records.splice(0, this.maxIndexedRecords - this.state.indexedRecords);
         }
         this.diagnosticsService?.addStat({
           name: `scrapedPages > ${url} > scrapedContent`,
@@ -256,7 +266,7 @@ export class Spider {
               `searchEngine > indexedRecords`,
               records.length || 0
             );
-            this.indexedRecords += records.length || 0;
+            this.state.indexedRecords += records.length || 0;
           } catch (error) {
             this.logger.error(`failed to indexed records`, error);
             this.diagnosticsService?.incrementStat(
@@ -271,7 +281,7 @@ export class Spider {
           );
 
           // tell all queued jobs to exit immediately as they start
-          this.stopping = true;
+          this.state.stopping = true;
 
           // wait for the queue to get emptied, then close the cluster
           await cluster.idle();
@@ -294,7 +304,7 @@ export class Spider {
           const linksToCrawl = allLinks.filter(
             (link: string) =>
               !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
-              !this.visitedUrls.includes(link) &&
+              !this.state.visitedUrls.includes(link) &&
               this.allowedDomains.includes(urlToDomain(link))
           );
           this.logger.debug(`marked links for crawling`, linksToCrawl);
@@ -303,16 +313,16 @@ export class Spider {
             num: allLinks.length
           });
           linksToCrawl.forEach((link: string) => {
-            this.visitedUrls.push(link);
+            this.state.visitedUrls.push(link);
             cluster.queue(link);
-            this.remainingQueueSize++;
+            this.state.remainingQueueSize++;
           });
         }
-        this.scrapedUrls++;
+        this.state.scrapedUrls++;
         this.logger.debug(`finished scraping url ${url}`, {
-          remainingQueueSize: this.remainingQueueSize,
-          totalScrapedPages: this.scrapedUrls,
-          totalIndexedRecords: this.indexedRecords
+          remainingQueueSize: this.state.remainingQueueSize,
+          totalScrapedPages: this.state.scrapedUrls,
+          totalIndexedRecords: this.state.indexedRecords
         });
       } catch (error) {
         this.logger.error(`error scraping url ${url}`, error);
@@ -320,9 +330,9 @@ export class Spider {
     });
 
     this.startUrls.forEach((url) => {
-      this.visitedUrls.push(withoutTrailingSlash(url));
+      this.state.visitedUrls.push(withoutTrailingSlash(url));
       cluster.queue(url);
-      this.remainingQueueSize++;
+      this.state.remainingQueueSize++;
     });
 
     await cluster.idle();
@@ -331,10 +341,12 @@ export class Spider {
       await this.searchPlugin.finish();
     }
     this.logger.debug(`Done!`, {
-      remainingQueueSize: this.remainingQueueSize,
-      totalScrapedPages: this.scrapedUrls,
-      totalIndexedRecords: this.indexedRecords,
-      duration: `${(Date.now() - this.lastStartTime) / (1000 * 60)} minutes`
+      remainingQueueSize: this.state.remainingQueueSize,
+      totalScrapedPages: this.state.scrapedUrls,
+      totalIndexedRecords: this.state.indexedRecords,
+      duration: `${
+        (Date.now() - this.state.lastStartTime) / (1000 * 60)
+      } minutes`
     });
     this.diagnosticsService?.writeAllStats();
   }
