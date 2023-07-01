@@ -1,5 +1,11 @@
 export type LogLevel = 'debug' | 'warn' | 'error' | 'supress';
 
+const ColorDict = {
+  debug: '[32m',
+  warn: '[33m',
+  error: '[31m'
+};
+
 export class Logger {
   level: LogLevel;
   private static instance?: Logger;
@@ -17,12 +23,18 @@ export class Logger {
     return Logger.instance;
   }
 
+  private formatted(message: string, level: LogLevel) {
+    return `\x1b${
+      ColorDict[level as keyof typeof ColorDict]
+    } [${new Date().toISOString()}] [${level.toUpperCase()}] ${message}\x1b[0m`;
+  }
+
   public debug(message: string, data?: unknown) {
     if (this.level === 'debug') {
       if (data) {
-        console.debug(message, data);
+        console.debug(this.formatted(message, 'debug'), data);
       } else {
-        console.debug(message);
+        console.debug(this.formatted(message, 'debug'));
       }
     }
   }
@@ -30,9 +42,9 @@ export class Logger {
   public warn(message: string, data?: unknown) {
     if (!['error', 'supress'].includes(this.level)) {
       if (data) {
-        console.warn(message, data);
+        console.warn(this.formatted(message, 'warn'), data);
       } else {
-        console.warn(message);
+        console.warn(this.formatted(message, 'warn'));
       }
     }
   }
@@ -40,9 +52,9 @@ export class Logger {
   public error(message: string, data?: unknown) {
     if (this.level !== 'supress') {
       if (data) {
-        console.error(message, data);
+        console.error(this.formatted(message, 'error'), data);
       } else {
-        console.error(message);
+        console.error(this.formatted(message, 'error'));
       }
     }
   }

@@ -1,18 +1,11 @@
-import { Cluster } from 'puppeteer-cluster';
 import { DiagnosticsService } from './DiagnosticsService';
-import { getContentMatchLevel, getLevelWeight } from './hierarchy';
 import { Logger } from './Logger';
 import { SearchPlugin, SearchPluginOptions } from './search-plugins/interfaces';
 import { getPlugin } from './search-plugins/pluginRegistry';
-import {
-  findActiveSelectorSet,
-  getSelectorMetadata,
-  removeExcludedElements
-} from './selectors';
-import { ScrapedRecord, Selectors, SpiderOptions } from './types';
+import { ScrapedRecord, ScraperSettingsGroups, SpiderOptions } from './types';
 import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
-import { getSelectorMatches } from './selectors';
-import { md5 } from './utils/hashing';
+import { ClusterProxy } from './ClusterProxy';
+import { PageScraper } from './PageScraper';
 
 interface SpiderState {
   visitedUrls: string[];
@@ -25,13 +18,14 @@ interface SpiderState {
 
 export class Spider {
   state: SpiderState;
+  cluster!: ClusterProxy<any, any>;
 
   readonly startUrls: string[];
   readonly ignoreUrls: string[];
   readonly allowedDomains: string[];
   readonly maxConcurrency: number;
   readonly userAgent?: string;
-  readonly selectors: Selectors;
+  readonly scraperSettings: ScraperSettingsGroups;
   readonly timeout?: number;
   readonly maxIndexedRecords?: number;
   readonly excludeSelectors?: string[];
@@ -71,7 +65,7 @@ export class Spider {
     if (opts.userAgent) {
       this.userAgent = opts.userAgent;
     }
-    this.selectors = opts.selectors;
+    this.scraperSettings = opts.scraperSettings;
     this.logger = opts.logger || Logger.getInstance(opts.logLevel);
     if (opts.searchEngineOpts) {
       this.registerSearchPlugin(opts.searchEngineOpts);
@@ -103,10 +97,7 @@ export class Spider {
 
   registerSearchPlugin(options: SearchPluginOptions) {
     this.searchPlugin = getPlugin(options);
-    this.logger.debug(
-      'successfully registered search plugin',
-      Object.keys(options).find((engineName) => !!engineName)
-    );
+    this.logger.debug('successfully registered search plugin', options.engine);
     this.diagnosticsService?.addStat({
       name: `searchEngine > totalErrors`,
       num: 0
@@ -117,237 +108,73 @@ export class Spider {
     });
   }
 
+  async onPageScraped({
+    scrapedRecords,
+    scrapedLinks
+  }: {
+    scrapedRecords: ScrapedRecord[];
+    scrapedLinks: string[];
+  }) {
+    if (this.searchPlugin) {
+      await this.searchPlugin.addRecords(scrapedRecords);
+    }
+    if (this.followLinks) {
+      const linksToCrawl = scrapedLinks.filter(
+        (link: string) =>
+          !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
+          !this.state.visitedUrls.includes(link) &&
+          this.allowedDomains.includes(urlToDomain(link))
+      );
+      linksToCrawl.forEach((link: string) => {
+        this.state.visitedUrls.push(link);
+        this.cluster.queue({ url: link });
+        this.state.remainingQueueSize++;
+      });
+    }
+  }
+
   async crawl() {
     this.state.stopping = false;
     if (this.searchPlugin?.init) {
       await this.searchPlugin.init();
     }
     this.state.lastStartTime = Date.now();
-    const cluster = await Cluster.launch({
-      concurrency: Cluster.CONCURRENCY_CONTEXT,
+    this.cluster = new ClusterProxy({
       maxConcurrency: this.maxConcurrency,
-      ...(this.timeout && {
-        timeout: this.timeout
-      })
+      timeout: this.timeout
     });
-
-    await cluster.task(async ({ page, data: url }) => {
-      try {
-        url = url
-          .replace('www.', '')
-          .replace(/\?(.)*/, '')
-          .replace(/#(.)*/, '');
-        this.state.remainingQueueSize--;
-        if (this.state.stopping) {
-          return;
-        }
-        // page
-        //   .on('console', (message) => console.log(message.text()))
-        //   .on('pageerror', ({ message }) => console.log(message))
-        //   // .on('response', (response) =>
-        //   //   console.log(`${response.status()} ${response.url()}`)
-        //   // )
-        //   .on('requestfailed', (request) =>
-        //     console.log(`${request.failure().errorText} ${request.url()}`)
-        //   );
-        this.logger.debug(`Scraping URL ${url}`);
-        if (this.userAgent) {
-          await page.setUserAgent(this.userAgent);
-        }
-        await page.goto(url);
-        this.diagnosticsService?.addStat({ name: `scrapedPages > ${url}` });
-
-        let skipIndexing = false;
-        if (this.respectRobotsMeta) {
-          skipIndexing = await page.evaluate((metaTagSelector: string) => {
-            return Array.from(document.querySelectorAll(metaTagSelector)).some(
-              (element) => {
-                return (element as any)?.content?.includes('noindex');
-              }
-            );
-          }, "head > meta[name='robots']");
-        }
-
-        const selectorSet = findActiveSelectorSet(this.selectors, url);
-        this.logger.debug(`Using selector set ${selectorSet}`);
-
-        if (this.excludeSelectors) {
-          this.logger.debug(
-            `Removing excluded selectors from DOM`,
-            this.excludeSelectors
-          );
-          await page.evaluate(removeExcludedElements, {
-            exclude: this.excludeSelectors
-          });
-          this.logger.debug(
-            `Successfully removed excluded selectors`,
-            this.excludeSelectors
-          );
-        }
-        await page.exposeFunction('uniq', uniq);
-        const { selectorMatches, selectorMatchesByLevel, title } =
-          await page.evaluate(getSelectorMatches, { selectorSet });
-        console.log(selectorMatches);
-        console.log(selectorMatchesByLevel);
-        const metadata = await page.evaluate(getSelectorMetadata, {
-          selectorSet
-        });
-
-        const records: ScrapedRecord[] = [];
-        const hierarchy: ScrapedRecord['hierarchy'] = {
-          l0: '',
-          l1: '',
-          l2: '',
-          l3: '',
-          l4: '',
-          content: ''
-        };
-        selectorMatches.forEach((contentMatch) => {
-          if (
-            contentMatch &&
-            !(
-              this.minResultLength && contentMatch.length < this.minResultLength
-            ) &&
-            !this.shouldExcludeResult?.(contentMatch)
-          ) {
-            const level = getContentMatchLevel(
-              contentMatch,
-              selectorMatchesByLevel
-            );
-            hierarchy[level] = contentMatch;
-            if (!selectorSet.onlyContentLevel || level === 'content') {
-              records.push({
-                uniqueId: md5(`${url}${contentMatch}`),
-                url,
-                content: contentMatch,
-                title,
-                hierarchy: { ...hierarchy },
-                metadata,
-                weight: {
-                  level: getLevelWeight(level),
-                  pageRank: selectorSet.pageRank || 0
-                }
-              });
-            }
-          }
-        });
-
-        let hasReachedMax = false;
-        if (
-          this.maxIndexedRecords &&
-          this.state.indexedRecords + records.length >= this.maxIndexedRecords
-        ) {
-          hasReachedMax = true;
-          records.splice(0, this.maxIndexedRecords - this.state.indexedRecords);
-        }
-        this.diagnosticsService?.addStat({
-          name: `scrapedPages > ${url} > scrapedContent`,
-          num: records.length || 0,
-          additionalData: JSON.stringify(records)
-        });
-
-        this.logger.debug(`scraped records ${records}`);
-        if (this.searchPlugin && skipIndexing) {
-          this.logger.debug(
-            `${url} has a "noindex" robots meta tag. Skipping indexing`
-          );
-        }
-        if (this.searchPlugin && !skipIndexing) {
-          this.logger.debug(`attempting to index records`);
-          try {
-            await this.searchPlugin.addRecords(records);
-            this.logger.debug(`successfully indexed records`);
-            this.diagnosticsService?.addStat({
-              name: `scrapedPages > ${url} > indexedContent`,
-              num: records.length || 0,
-              additionalData: JSON.stringify(records)
-            });
-            this.diagnosticsService?.incrementStat(
-              `searchEngine > indexedRecords`,
-              records.length || 0
-            );
-            this.state.indexedRecords += records.length || 0;
-          } catch (error) {
-            this.logger.error(`failed to indexed records`, error);
-            this.diagnosticsService?.incrementStat(
-              `searchEngine > totalErrors`
-            );
-          }
-        }
-
-        if (hasReachedMax) {
-          this.logger.debug(
-            `reached maximum records (${this.maxIndexedRecords}), stopping...`
-          );
-
-          // tell all queued jobs to exit immediately as they start
-          this.state.stopping = true;
-
-          // wait for the queue to get emptied, then close the cluster
-          await cluster.idle();
-          await cluster.close();
-          return;
-        }
-        if (this.followLinks) {
-          const allLinks = uniq(
-            (
-              await page.evaluate((resultsSelector: string) => {
-                return Array.from(
-                  document.querySelectorAll(resultsSelector)
-                ).map((anchor) => {
-                  return (anchor as HTMLAnchorElement).href;
-                });
-              }, 'a')
-            )?.map((link) => withoutTrailingSlash(link))
-          );
-          this.logger.debug(`found links`, allLinks);
-          const linksToCrawl = allLinks.filter(
-            (link: string) =>
-              !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
-              !this.state.visitedUrls.includes(link) &&
-              this.allowedDomains.includes(urlToDomain(link))
-          );
-          this.logger.debug(`marked links for crawling`, linksToCrawl);
-          this.diagnosticsService?.addStat({
-            name: `scrapedPages > ${url} > numLinks`,
-            num: allLinks.length
-          });
-          linksToCrawl.forEach((link: string) => {
-            this.state.visitedUrls.push(link);
-            cluster.queue(link);
-            this.state.remainingQueueSize++;
-          });
-        }
-        this.state.scrapedUrls++;
-        this.logger.debug(`finished scraping url ${url}`, {
-          remainingQueueSize: this.state.remainingQueueSize,
-          totalScrapedPages: this.state.scrapedUrls,
-          totalIndexedRecords: this.state.indexedRecords
-        });
-      } catch (error) {
-        this.logger.error(`error scraping url ${url}`, error);
-      }
+    const pageScraper = new PageScraper({
+      onStart: this.cluster.onTaskStarted,
+      onFinish: this.onPageScraped.bind(this),
+      stopSignal: this.cluster.isStopping,
+      settings: this.scraperSettings,
+      excludeSelectors: this.excludeSelectors
     });
-
+    this.cluster.setTaskFunction(pageScraper.scrapePage.bind(pageScraper));
+    await this.cluster.launch();
     this.startUrls.forEach((url) => {
       this.state.visitedUrls.push(withoutTrailingSlash(url));
-      cluster.queue(url);
-      this.state.remainingQueueSize++;
+      this.cluster.queue({ url });
     });
+    await this.cluster.wait();
 
-    await cluster.idle();
-    await cluster.close();
     if (this.searchPlugin) {
       await this.searchPlugin.finish();
     }
-    this.logger.debug(`Done!`, {
-      remainingQueueSize: this.state.remainingQueueSize,
-      totalScrapedPages: this.state.scrapedUrls,
-      totalIndexedRecords: this.state.indexedRecords,
-      duration: `${
-        (Date.now() - this.state.lastStartTime) / (1000 * 60)
-      } minutes`
-    });
+    this.logger.debug(
+      `Done!\n ${JSON.stringify(
+        {
+          remainingQueueSize: this.state.remainingQueueSize,
+          totalScrapedPages: this.state.scrapedUrls,
+          totalIndexedRecords: this.state.indexedRecords,
+          duration: `${
+            (Date.now() - this.state.lastStartTime) / (1000 * 60)
+          } minutes`
+        },
+        undefined,
+        4
+      )}`
+    );
     this.diagnosticsService?.writeAllStats();
   }
 }

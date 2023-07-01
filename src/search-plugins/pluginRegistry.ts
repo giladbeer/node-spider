@@ -1,8 +1,8 @@
 import { AlgoliaPlugin } from './algolia/AlgoliaPlugin';
 import { DummyFsPlugin } from './dummy-fs-plugin/DummyFsPlugin';
-import { SearchPluginOptions } from './interfaces';
+import { SearchPlugin, SearchPluginOptions } from './interfaces';
 
-export const getPlugin = (options?: SearchPluginOptions) => {
+export const getPlugin = (options?: SearchPluginOptions): SearchPlugin => {
   switch (options?.engine) {
     case 'algolia': {
       const plugin = new AlgoliaPlugin({

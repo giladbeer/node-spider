@@ -24,28 +24,6 @@ export function getSettingsGroupForUrl(
   return settingsGroup;
 }
 
-// /**
-//  * returns the set of selector rules that matches the current page's url, based on the selector set's urlPattern property
-//  * @param selectors - all selector sets from the spider's config
-//  * @param currentUrl - url of the current page that is being crawled
-//  */
-// export function findActiveSelectorSet(
-//   selectors: Selectors,
-//   currentUrl: string
-// ) {
-//   const selectorSet =
-//     Object.values(selectors).find((set) => {
-//       const pattern = set.urlPattern;
-//       if (!pattern) {
-//         return false;
-//       }
-//       if (withoutTrailingSlash(currentUrl).match(pattern)) {
-//         return true;
-//       }
-//     }) || selectors.default;
-//   return selectorSet;
-// }
-
 // runs in browser context (puppeteer's page.evaluate()), so external functions are available using page.expose() and have to be awaited
 // even if they are synchronous (e.g. uniq)
 export async function getSelectorMatches({
