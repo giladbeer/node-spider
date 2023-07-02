@@ -1,4 +1,8 @@
-import { ScraperSettingsGroup, ScraperSettingsGroups } from '../types';
+import {
+  ScraperSettings,
+  HierarchySelectors,
+  MetadataSelectors
+} from '../types';
 import { withoutTrailingSlash } from '../utils';
 import { Level } from '../types';
 
@@ -8,11 +12,11 @@ import { Level } from '../types';
  * @param currentUrl - url of the current page that is being crawled
  */
 export function getSettingsGroupForUrl(
-  settings: ScraperSettingsGroups,
+  settings: ScraperSettings,
   currentUrl: string
 ) {
-  const settingsGroup =
-    Object.values(settings).find((group) => {
+  const [groupName, settingsGroup] = Object.entries(settings).find(
+    ([, group]) => {
       const pattern = group.urlPattern;
       if (!pattern) {
         return false;
@@ -20,30 +24,29 @@ export function getSettingsGroupForUrl(
       if (withoutTrailingSlash(currentUrl).match(pattern)) {
         return true;
       }
-    }) || settings.default;
-  return settingsGroup;
+    }
+  ) || ['default', settings.default];
+  return { settingsGroup, groupName };
 }
 
 // runs in browser context (puppeteer's page.evaluate()), so external functions are available using page.expose() and have to be awaited
 // even if they are synchronous (e.g. uniq)
 export async function getSelectorMatches({
-  settingsGroup
+  selectors
 }: {
-  settingsGroup: ScraperSettingsGroup;
+  selectors: HierarchySelectors;
 }) {
-  const levels = Object.keys(settingsGroup.hierarchySelectors) as Level[];
-  const selectors = (
-    await (window as any).uniq(
-      Object.values(settingsGroup.hierarchySelectors).join(',').split(',')
-    )
+  const levels = Object.keys(selectors) as Level[];
+  const selectorList = (
+    await (window as any).uniq(Object.values(selectors).join(',').split(','))
   ).join(',');
-  const selectorMatches = Array.from(document.querySelectorAll(selectors))
+  const selectorMatches = Array.from(document.querySelectorAll(selectorList))
     .map((node) => node.textContent)
     .filter(Boolean);
 
   const selectorMatchesByLevel: Partial<Record<Level, string[]>> = {};
   levels.forEach((level) => {
-    const selector = settingsGroup.hierarchySelectors[level];
+    const selector = selectors[level];
     if (selector) {
       const levelContent = Array.from(document.querySelectorAll(selector))
         .map((node) => node.textContent)
@@ -62,15 +65,13 @@ export async function getSelectorMatches({
 // runs in browser context (puppeteer's page.evaluate()), so external functions are available using page.expose() and have to be awaited
 // even if they are synchronous (e.g. uniq)
 export async function getSelectorMetadata({
-  settingsGroup
+  selectors
 }: {
-  settingsGroup: ScraperSettingsGroup;
+  selectors: MetadataSelectors;
 }) {
-  const metadataSelectors = Object.entries(
-    settingsGroup.metadataSelectors || {}
-  );
+  const metadataSelectorsList = Object.entries(selectors || {});
   const metadata: Record<string, any> = {};
-  metadataSelectors.forEach(([propertyName, selector]) => {
+  metadataSelectorsList.forEach(([propertyName, selector]) => {
     const matches = Array.from(document.querySelectorAll(selector))
       .map((node) => node.textContent || (node as HTMLMetaElement).content)
       .filter(Boolean);

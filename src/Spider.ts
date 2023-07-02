@@ -2,8 +2,13 @@ import { DiagnosticsService } from './DiagnosticsService';
 import { Logger } from './Logger';
 import { SearchPlugin, SearchPluginOptions } from './search-plugins/interfaces';
 import { getPlugin } from './search-plugins/pluginRegistry';
-import { ScrapedRecord, ScraperSettingsGroups, SpiderOptions } from './types';
-import { uniq, urlToDomain, withoutTrailingSlash } from './utils';
+import { ScrapedRecord, ScraperSettings, SpiderOptions } from './types';
+import {
+  uniq,
+  urlToDomain,
+  withoutTrailingSlash,
+  formatDuration
+} from './utils';
 import { ClusterProxy } from './ClusterProxy';
 import { PageScraper } from './PageScraper';
 
@@ -24,12 +29,9 @@ export class Spider {
   readonly ignoreUrls: string[];
   readonly allowedDomains: string[];
   readonly maxConcurrency: number;
-  readonly userAgent?: string;
-  readonly scraperSettings: ScraperSettingsGroups;
+  readonly scraperSettings: ScraperSettings;
   readonly timeout?: number;
   readonly maxIndexedRecords?: number;
-  readonly excludeSelectors?: string[];
-  readonly respectRobotsMeta: boolean;
   readonly minResultLength?: number;
   readonly followLinks?: boolean;
 
@@ -62,11 +64,9 @@ export class Spider {
         opts.allowedDomains || uniq(this.startUrls.map(urlToDomain));
     }
     this.maxConcurrency = opts.maxConcurrency || 1;
-    if (opts.userAgent) {
-      this.userAgent = opts.userAgent;
-    }
     this.scraperSettings = opts.scraperSettings;
-    this.logger = opts.logger || Logger.getInstance(opts.logLevel);
+    this.logger =
+      opts.logger || Logger.getInstance({ logLevel: opts.logLevel });
     if (opts.searchEngineOpts) {
       this.registerSearchPlugin(opts.searchEngineOpts);
     }
@@ -84,10 +84,6 @@ export class Spider {
     if (opts.maxIndexedRecords) {
       this.maxIndexedRecords = opts.maxIndexedRecords;
     }
-    if (opts.excludeSelectors) {
-      this.excludeSelectors = opts.excludeSelectors;
-    }
-    this.respectRobotsMeta = opts.respectRobotsMeta || false;
     this.shouldExcludeResult = opts.shouldExcludeResult;
     if (opts.minResultLength) {
       this.minResultLength = opts.minResultLength;
@@ -147,8 +143,7 @@ export class Spider {
       onStart: this.cluster.onTaskStarted,
       onFinish: this.onPageScraped.bind(this),
       stopSignal: this.cluster.isStopping,
-      settings: this.scraperSettings,
-      excludeSelectors: this.excludeSelectors
+      settings: this.scraperSettings
     });
     this.cluster.setTaskFunction(pageScraper.scrapePage.bind(pageScraper));
     await this.cluster.launch();
@@ -167,9 +162,7 @@ export class Spider {
           remainingQueueSize: this.state.remainingQueueSize,
           totalScrapedPages: this.state.scrapedUrls,
           totalIndexedRecords: this.state.indexedRecords,
-          duration: `${
-            (Date.now() - this.state.lastStartTime) / (1000 * 60)
-          } minutes`
+          duration: formatDuration(Date.now() - this.state.lastStartTime)
         },
         undefined,
         4

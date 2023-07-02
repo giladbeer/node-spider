@@ -7,3 +7,4 @@ node_spider_dump.txt
 dist
 .DS_Store
 dummy-fs-records.json
+*.log

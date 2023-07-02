@@ -20,15 +20,19 @@
       "metadataSelectors": {
         "ie": "meta[content^='ie']"
       }
+    },
+    "shared": {
+      "onlyContentLevel": true,
+      "excludeSelectors": [
+        "header",
+        "footer"
+      ],
+      "userAgent": "Agent Smith"
     }
   },
-  "onlyContentLevel": true,
-  "excludeSelectors": [
-    "header",
-    "footer"
-  ],
-  "userAgent": "Agent Smith",
   "diagnostics": true,
   "logLevel": "debug",
   "maxIndexedRecords": 10
 }
+
+

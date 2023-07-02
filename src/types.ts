@@ -35,9 +35,9 @@ export type Level = keyof HierarchySelectors & string;
 /**
  * a group of a scraper settings - mostly hierarchy and metadata selectors, grouped by a specific URL pattern
  */
-export interface ScraperSettingsGroup {
+export interface ScraperPageSettings {
   /** hierarchy selectors. Essentially a mapping from html selectors to indexed hierarchy levels */
-  hierarchySelectors: HierarchySelectors;
+  hierarchySelectors?: HierarchySelectors;
   /** metadata selectors. Mapping from html selectors to custom additional fields in the index, e.g. can scrape meta tags of a certain content pattern and store under a custom field */
   metadataSelectors?: MetadataSelectors;
   /** the url pattern to which this selector set config should apply */
@@ -46,15 +46,30 @@ export interface ScraperSettingsGroup {
   pageRank?: number;
   /** when set to true, only 'content' matches will be indexed */
   onlyContentLevel?: boolean;
+  /** custom user agent to set when running puppeteer */
+  userAgent?: string;
+  /** basic auth credentials */
+  basicAuth?: {
+    user: string;
+    password: string;
+  };
+  /** request headers to include when crawling the site */
+  headers?: Record<string, string>;
+  /** list of html selectors to exclude from being scraped */
+  excludeSelectors?: string[];
+  /** whether or not the crawler should respect 'noindex' meta tag */
+  respectRobotsMeta?: boolean;
 }
 
 /**
  * all of the scraper settings groups (each group except the default ties to a specific URL pattern)
  */
-export interface ScraperSettingsGroups {
+export interface ScraperSettings {
+  /** shared scraper settings group */
+  shared: Omit<ScraperPageSettings, 'urlPattern'>;
   /** the default scraper settings group */
-  default: Omit<ScraperSettingsGroup, 'urlPattern'>;
-  [name: string]: ScraperSettingsGroup;
+  default: Omit<ScraperPageSettings, 'urlPattern'>;
+  [name: string]: ScraperPageSettings;
 }
 
 export interface ScrapedRecord {
@@ -92,7 +107,7 @@ export interface SpiderOptions {
   /** custom user agent to set when running puppeteer */
   userAgent?: string;
   /** html selectors for telling the crawler which content to scrape for indexing */
-  scraperSettings: ScraperSettingsGroups;
+  scraperSettings: ScraperSettings;
   /** search engine settings */
   searchEngineOpts?: SearchPluginOptions;
   /** log level */
@@ -119,6 +134,13 @@ export interface SpiderOptions {
   shouldExcludeResult?: (content: string) => boolean;
   /** whether or not the spider should follow links in the initial page(s). Defaults to true */
   followLinks?: boolean;
+  /** basic auth credentials */
+  basicAuth?: {
+    user: string;
+    password: string;
+  };
+  /** request headers to include when crawling the site */
+  headers?: Record<string, string>;
 }
 
 export type CrawlSiteOptionsCrawlerConfig = Pick<
@@ -138,4 +160,6 @@ export type CrawlSiteOptionsCrawlerConfig = Pick<
   | 'minResultLength'
   | 'logLevel'
   | 'followLinks'
+  | 'basicAuth'
+  | 'headers'
 >;

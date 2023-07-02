@@ -1,16 +1,17 @@
 import { Page } from 'puppeteer';
-import { ScrapedRecord, ScraperSettingsGroups } from './types';
+import { ScrapedRecord, ScraperSettings } from './types';
 import {
   getSettingsGroupForUrl,
   getSelectorMatches,
   getSelectorMetadata,
   removeExcludedElements
 } from './utils/scraping';
-import { uniq, withoutTrailingSlash } from './utils';
+import { getFromBaseAndCustom, uniq, withoutTrailingSlash } from './utils';
 import { getContentMatchLevel, getLevelWeight } from './hierarchy';
 import { md5 } from './utils/hashing';
 import { EventService } from './EventService';
 import { Logger } from './Logger';
+import { getBasicAuthHeader } from './utils/basicAuth';
 
 interface PageScraperOptions {
   onStart?: () => void | Promise<void>;
@@ -20,8 +21,7 @@ interface PageScraperOptions {
   }) => void | Promise<void>;
   onAbort?: () => void | Promise<void>;
   stopSignal?: () => boolean;
-  settings: ScraperSettingsGroups;
-  excludeSelectors?: string[];
+  settings: ScraperSettings;
 }
 
 export class PageScraper {
@@ -32,8 +32,7 @@ export class PageScraper {
   }) => void | Promise<void>;
   private readonly onAbort?: () => void | Promise<void>;
   private readonly stopSignal?: () => void;
-  private readonly settings: ScraperSettingsGroups;
-  private readonly excludeSelectors?: string[];
+  private readonly settings: ScraperSettings;
   private readonly eventService: EventService;
   private readonly logger: Logger;
 
@@ -43,23 +42,58 @@ export class PageScraper {
     this.onAbort = options.onAbort;
     this.stopSignal = options.stopSignal;
     this.settings = options.settings;
-    this.excludeSelectors = options.excludeSelectors;
     this.eventService = EventService.getInstance();
-    this.logger = Logger.getInstance();
+    this.logger = Logger.getInstance({});
   }
 
   public async scrapePage({
     page,
-    data: { url, userAgent, respectRobotsMeta }
+    data: { url }
   }: {
     page: Page;
-    data: { url: string; userAgent?: string; respectRobotsMeta?: boolean };
+    data: { url: string };
   }) {
     try {
       url = url
         .replace('www.', '')
         .replace(/\?(.)*/, '')
         .replace(/#(.)*/, '');
+      const { settingsGroup: scraperPageSettings, groupName } =
+        getSettingsGroupForUrl(this.settings, url);
+      if (!scraperPageSettings) {
+        throw new Error('could not retrieve scraper settings');
+      }
+      this.logger.debug(
+        `Scraper page settings (using settings group ${groupName})`,
+        JSON.stringify(this.settings || {})
+      );
+      const {
+        respectRobotsMeta = false,
+        excludeSelectors,
+        userAgent,
+        basicAuth,
+        headers,
+        pageRank,
+        onlyContentLevel = true
+      } = getFromBaseAndCustom(scraperPageSettings, this.settings.shared, [
+        'respectRobotsMeta',
+        'excludeSelectors',
+        'userAgent',
+        'basicAuth',
+        'headers',
+        'pageRank',
+        'onlyContentLevel'
+      ]);
+      const hierarchySelectors =
+        scraperPageSettings.hierarchySelectors ||
+        this.settings.shared?.hierarchySelectors;
+      if (!hierarchySelectors) {
+        throw new Error('could not retrieve hierarchy selectors');
+      }
+      const metadataSelectors =
+        scraperPageSettings.metadataSelectors ||
+        this.settings.shared?.metadataSelectors;
+
       this.onStart?.();
       if (this.stopSignal?.()) {
         this.onAbort?.();
@@ -79,6 +113,14 @@ export class PageScraper {
       if (userAgent) {
         await page.setUserAgent(userAgent);
       }
+      if (headers) {
+        await page.setExtraHTTPHeaders(headers);
+      }
+      if (basicAuth) {
+        await page.setExtraHTTPHeaders(
+          getBasicAuthHeader(basicAuth.user, basicAuth.password)
+        );
+      }
 
       await page.goto(url);
       this.eventService.fireEvent('SCRAPER.URL.VISITED', { url });
@@ -95,29 +137,23 @@ export class PageScraper {
       }
 
       if (!skipCrawling) {
-        const scraperPageSettings = getSettingsGroupForUrl(this.settings, url);
-        this.logger.debug(
-          `Retrieved scraper page settings`,
-          JSON.stringify(scraperPageSettings || {})
-        );
-
-        if (this.excludeSelectors) {
+        if (excludeSelectors) {
           this.logger.debug(
             `Removing excluded selectors from DOM`,
-            JSON.stringify(this.excludeSelectors || {})
+            JSON.stringify(excludeSelectors || {})
           );
           await page.evaluate(removeExcludedElements, {
-            exclude: this.excludeSelectors
+            exclude: excludeSelectors
           });
           this.logger.debug(
             `Successfully removed excluded selectors`,
-            JSON.stringify(this.excludeSelectors || {})
+            JSON.stringify(excludeSelectors || {})
           );
         }
         await page.exposeFunction('uniq', uniq);
         const { selectorMatches, selectorMatchesByLevel, title } =
           await page.evaluate(getSelectorMatches, {
-            settingsGroup: scraperPageSettings
+            selectors: hierarchySelectors
           });
         this.logger.debug(`Page title`, title);
         this.logger.debug(
@@ -128,9 +164,11 @@ export class PageScraper {
           `Page selector matches by level`,
           JSON.stringify(selectorMatchesByLevel || {})
         );
-        const metadata = await page.evaluate(getSelectorMetadata, {
-          settingsGroup: scraperPageSettings
-        });
+        const metadata = metadataSelectors
+          ? await page.evaluate(getSelectorMetadata, {
+              selectors: metadataSelectors
+            })
+          : {};
         this.logger.debug(`Page metadata`, JSON.stringify(metadata || {}));
         const records: ScrapedRecord[] = [];
         const hierarchy: ScrapedRecord['hierarchy'] = {
@@ -151,7 +189,7 @@ export class PageScraper {
               selectorMatchesByLevel
             );
             hierarchy[level] = contentMatch;
-            if (!scraperPageSettings.onlyContentLevel || level === 'content') {
+            if (!onlyContentLevel || level === 'content') {
               records.push({
                 uniqueId: md5(`${url}${contentMatch}`),
                 url,
@@ -161,7 +199,7 @@ export class PageScraper {
                 metadata,
                 weight: {
                   level: getLevelWeight(level),
-                  pageRank: scraperPageSettings.pageRank || 0
+                  pageRank: pageRank || 0
                 }
               });
             }
@@ -187,7 +225,7 @@ export class PageScraper {
       } else {
         // skip crawling this page
         this.logger.warn(
-          `Page scraping skipped for ${url} (respecting "noindex" in robots meta tag)`
+          `Page scraping skipped for ${url} (respecting "noindex" in robots meta tag - this behaviour can be changed via config. See: https://github.com/giladbeer/node-spider#crawlerconfig [respectRobotsMeta])`
         );
         if (this.onFinish) {
           this.onFinish({ scrapedRecords: [], scrapedLinks: [] });
