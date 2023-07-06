@@ -9,7 +9,7 @@ import {
 import { getFromBaseAndCustom, uniq, withoutTrailingSlash } from './utils';
 import { getContentMatchLevel, getLevelWeight } from './hierarchy';
 import { md5 } from './utils/hashing';
-import { EventService } from './EventService';
+import { EventService } from './events';
 import { Logger } from './Logger';
 import { getBasicAuthHeader } from './utils/basicAuth';
 

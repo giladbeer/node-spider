@@ -15,11 +15,11 @@ In that job, it will then:
 {
   uniqueId: string;
   url: string; // the URL of the page from which the record was scraped (in other words, the page where the content was found)
-  content: string; // the 
-  title: string;
-  hierarchy: Hierarchy;
-  metadata: Metadata;
-  weight: {
+  content: string; // the record's content field - typically used for a search result's description
+  title: string; // the record's title field
+  hierarchy: Hierarchy; // the hierarchy field - see below for more details
+  metadata: Metadata; // metadata field - for any additional custom data from the scraper
+  weight: { // for ranking
     level: number;
     pageRank: number;
   }
