@@ -3,7 +3,7 @@ import {
   HierarchySelectors,
   MetadataSelectors
 } from '../types';
-import { withoutTrailingSlash } from '../utils';
+import { uniq as _uniq, withoutTrailingSlash } from '../utils';
 import { Level } from '../types';
 
 /**
@@ -37,9 +37,13 @@ export async function getSelectorMatches({
   selectors: HierarchySelectors;
 }) {
   const levels = Object.keys(selectors) as Level[];
-  const selectorList = (
-    await (window as any).uniq(Object.values(selectors).join(',').split(','))
-  ).join(',');
+  const uniq = (
+    typeof window !== 'undefined' ? (window as any)?.uniq : _uniq
+  ) as typeof _uniq;
+  const selectorList = (await uniq(Object.values(selectors)))
+    .join(',')
+    .split(',')
+    .join(',');
   const selectorMatches = Array.from(document.querySelectorAll(selectorList))
     .map((node) => node.textContent)
     .filter(Boolean);

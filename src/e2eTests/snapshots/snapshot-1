@@ -42,69 +42,6 @@
         }
     },
     {
-        "uniqueId": "fb9fcf90167e99a33d869a0070700a2f",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "\n                                    Your Answer\n                                ",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                    Your Answer\n                                ",
-            "l3": "",
-            "l4": "",
-            "content": "One difference I found just now is pkill -u accepts uid. But killall -u considers uid as user name."
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 80,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "f89630e6b509ecd64431b3fe7606aa6c",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "What's the difference between pkill and killall?",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "",
-            "l3": "",
-            "l4": "",
-            "content": ""
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 90,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "f55962a473fbed7eb65ed5919f3f8165",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "Sign up or log in",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                    Your Answer\n                                ",
-            "l3": "Sign up or log in",
-            "l4": "",
-            "content": "To learn more, see our tips on writing great answers."
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 70,
-            "pageRank": 0
-        }
-    },
-    {
         "uniqueId": "f48d24d29faee171aa346b2e771f2a96",
         "url": "http://localhost:8080/test-page-1.html",
         "content": "Thanks for contributing an answer to Unix & Linux Stack Exchange!",
@@ -122,27 +59,6 @@
         },
         "weight": {
             "level": 0,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "f1d2b478c7dc1ab8b80c6928ff822217",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "Related",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                \nNot the answer you're looking for? Browse other questions tagged linuxprocesskillprocess-management or ask your own question.                                \n                            ",
-            "l3": "Post as a guest",
-            "l4": "Related",
-            "content": "\n                                                By clicking “Post Your Answer”, you agree to our terms of service, privacy policy and cookie policy\n                                            "
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 60,
             "pageRank": 0
         }
     },
@@ -210,27 +126,6 @@
         }
     },
     {
-        "uniqueId": "c20660687daa2626a8e5209be4856943",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "Post as a guest",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                    Your Answer\n                                ",
-            "l3": "Post as a guest",
-            "l4": "",
-            "content": "To learn more, see our tips on writing great answers."
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 70,
-            "pageRank": 0
-        }
-    },
-    {
         "uniqueId": "bddbebf40a2cc16037e5b7f2f36f31a6",
         "url": "http://localhost:8080/test-page-1.html",
         "content": "\n                                                By clicking “Post Your Answer”, you agree to our terms of service, privacy policy and cookie policy\n                                            ",
@@ -248,69 +143,6 @@
         },
         "weight": {
             "level": 0,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "b231f49e170b00a8c9664bd2eff7a031",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "\n                                        5 Answers\n                                    5\n                                ",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                        5 Answers\n                                    5\n                                ",
-            "l3": "",
-            "l4": "",
-            "content": "I've read that killall is more effective and kill all processes and subprocesses (and recursively) that match with name program.  pkill doesn't do this too?"
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 80,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "a466e321536e5cef7a62e02a4ba0534d",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "Linked",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                \nNot the answer you're looking for? Browse other questions tagged linuxprocesskillprocess-management or ask your own question.                                \n                            ",
-            "l3": "Post as a guest",
-            "l4": "Linked",
-            "content": "\n                                                By clicking “Post Your Answer”, you agree to our terms of service, privacy policy and cookie policy\n                                            "
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 60,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "a3b45e72239c533ab6383a9b27766f9a",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "\n                                \nNot the answer you're looking for? Browse other questions tagged linuxprocesskillprocess-management or ask your own question.                                \n                            ",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                \nNot the answer you're looking for? Browse other questions tagged linuxprocesskillprocess-management or ask your own question.                                \n                            ",
-            "l3": "Post as a guest",
-            "l4": "",
-            "content": "\n                                                By clicking “Post Your Answer”, you agree to our terms of service, privacy policy and cookie policy\n                                            "
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 80,
             "pageRank": 0
         }
     },
@@ -378,27 +210,6 @@
         }
     },
     {
-        "uniqueId": "8b0036a60e8490ee6c52b7dc210d834b",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "\n        \n            Hot Network Questions\n        \n    ",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "What's the difference between pkill and killall?",
-            "l2": "\n                                \nNot the answer you're looking for? Browse other questions tagged linuxprocesskillprocess-management or ask your own question.                                \n                            ",
-            "l3": "Post as a guest",
-            "l4": "\n        \n            Hot Network Questions\n        \n    ",
-            "content": "\n                                                By clicking “Post Your Answer”, you agree to our terms of service, privacy policy and cookie policy\n                                            "
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 60,
-            "pageRank": 0
-        }
-    },
-    {
         "uniqueId": "786154e6b1a832ea0353f31c0d627e90",
         "url": "http://localhost:8080/test-page-1.html",
         "content": "One difference I found just now is pkill -u accepts uid. But killall -u considers uid as user name.",
@@ -416,27 +227,6 @@
         },
         "weight": {
             "level": 0,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "7261486ed1db1ba566d8a246f3c96926",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "\n                Subscribe to RSS\n            ",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "\n                Subscribe to RSS\n            ",
-            "l2": "\n                                \nNot the answer you're looking for? Browse other questions tagged linuxprocesskillprocess-management or ask your own question.                                \n                            ",
-            "l3": "Post as a guest",
-            "l4": "\n        \n            Hot Network Questions\n        \n    ",
-            "content": "\n                                                By clicking “Post Your Answer”, you agree to our terms of service, privacy policy and cookie policy\n                                            "
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 90,
             "pageRank": 0
         }
     },
@@ -542,27 +332,6 @@
         },
         "weight": {
             "level": 0,
-            "pageRank": 0
-        }
-    },
-    {
-        "uniqueId": "19e74fd3a85319b94cf0e913704f8691",
-        "url": "http://localhost:8080/test-page-1.html",
-        "content": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "title": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-        "hierarchy": {
-            "l0": "linux - What's the difference between pkill and killall? - Unix & Linux Stack Exchange",
-            "l1": "",
-            "l2": "",
-            "l3": "",
-            "l4": "",
-            "content": ""
-        },
-        "metadata": {
-            "ie": ""
-        },
-        "weight": {
-            "level": 100,
             "pageRank": 0
         }
     },
