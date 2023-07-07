@@ -7,9 +7,9 @@
     "localhost"
   ],
   "followLinks": false,
-  "selectors": {
+  "scraperSettings": {
     "default": {
-      "hierarchy": {
+      "hierarchySelectors": {
         "l0": "title",
         "l1": "#content h1",
         "l2": "#content h2",
@@ -17,17 +17,19 @@
         "l4": "#content h4",
         "content": "#content p"
       },
-      "metadata": {
+      "metadataSelectors": {
         "ie": "meta[content^='ie']"
       }
+    },
+    "shared": {
+      "onlyContentLevel": true,
+      "excludeSelectors": [
+        "header",
+        "footer"
+      ],
+      "userAgent": "Agent Smith"
     }
   },
-  "onlyContentLevel": true,
-  "excludeSelectors": [
-    "header",
-    "footer"
-  ],
-  "userAgent": "Agent Smith",
   "diagnostics": true,
   "logLevel": "debug",
   "maxIndexedRecords": 10

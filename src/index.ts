@@ -64,7 +64,7 @@ export const crawlSite = async (options: CrawlSiteOptions) => {
       );
     }
     const { logLevel, diagnostics, diagnosticsFilePath } = config;
-    const logger = Logger.getInstance(logLevel);
+    const logger = Logger.getInstance({ logLevel });
     const diagnosticsService =
       diagnostics || diagnosticsFilePath
         ? DiagnosticsService.getInstance(diagnosticsFilePath)

@@ -2,38 +2,74 @@ import type { DiagnosticsService } from './DiagnosticsService';
 import type { Logger, LogLevel } from './Logger';
 import type { SearchPluginOptions } from './search-plugins/interfaces';
 
-export interface Hierarchy {
-  l0?: keyof HTMLElementTagNameMap;
-  l1?: keyof HTMLElementTagNameMap;
-  l2?: keyof HTMLElementTagNameMap;
-  l3?: keyof HTMLElementTagNameMap;
-  l4?: keyof HTMLElementTagNameMap;
-  content: keyof HTMLElementTagNameMap;
+/**
+ * hierarchy selectors. Essentially a mapping from html selectors to indexed hierarchy levels:
+ * - l0 - level 0 selectors, e.g. ***"span[class='myclass'], .myclass2"***
+ * - l1 - level 1 selectors, e.g. ***"span[class='myclass'], .myclass2"***
+ * - l2 - level 2 selectors, e.g. ***"span[class='myclass'], .myclass2"***
+ * - l3 - level 3 selectors, e.g. ***"span[class='myclass'], .myclass2"***
+ * - l4 - level 4 selectors, e.g. ***"span[class='myclass'], .myclass2"***
+ * - content - content level selectors, e.g. ***"span[class='myclass'], .myclass2"***
+ */
+export interface HierarchySelectors {
+  /** level 0 selectors ***e.g. "span[class='myclass'], .myclass2"*** */
+  l0: string;
+  /** level 1 selectors */
+  l1?: string;
+  /** level 2 selectors */
+  l2?: string;
+  /** level 3 selectors */
+  l3?: string;
+  /** level 4 selectors */
+  l4?: string;
+  /** content level selectors */
+  content?: string;
 }
 
-export interface Metadata {
-  [key: string]: keyof HTMLElementTagNameMap;
+export interface MetadataSelectors {
+  [key: string]: string;
 }
 
-export type Level = keyof Hierarchy;
+export type Level = keyof HierarchySelectors & string;
 
-export interface SelectorSet {
-  /** hierarchy config. Essentially a mapping from html selectors to indexed hierarchy level */
-  hierarchy: Hierarchy;
-  /** metadata config. Mapping from html selectors to custom additional fields in the index, e.g. can scrape meta tags of a certain content pattern and store under a custom field */
-  metadata?: Metadata;
+/**
+ * a group of a scraper settings - mostly hierarchy and metadata selectors, grouped by a specific URL pattern
+ */
+export interface ScraperPageSettings {
+  /** hierarchy selectors. Essentially a mapping from html selectors to indexed hierarchy levels */
+  hierarchySelectors?: HierarchySelectors;
+  /** metadata selectors. Mapping from html selectors to custom additional fields in the index, e.g. can scrape meta tags of a certain content pattern and store under a custom field */
+  metadataSelectors?: MetadataSelectors;
   /** the url pattern to which this selector set config should apply */
   urlPattern?: string;
   /** custom page rank for the specified url pattern */
   pageRank?: number;
   /** when set to true, only 'content' matches will be indexed */
   onlyContentLevel?: boolean;
+  /** custom user agent to set when running puppeteer */
+  userAgent?: string;
+  /** basic auth credentials */
+  basicAuth?: {
+    user: string;
+    password: string;
+  };
+  /** request headers to include when crawling the site */
+  headers?: Record<string, string>;
+  /** list of html selectors to exclude from being scraped */
+  excludeSelectors?: string[];
+  /** whether or not the crawler should respect 'noindex' meta tag */
+  respectRobotsMeta?: boolean;
 }
 
-export interface Selectors {
-  /** the default selector set config */
-  default: Omit<SelectorSet, 'urlPattern'>;
-  [name: string]: SelectorSet;
+/**
+ * all of the scraper settings groups (each group except the default ties to a specific URL pattern)
+ */
+export interface ScraperSettings {
+  /** shared scraper settings group */
+  shared: Omit<ScraperPageSettings, 'urlPattern'>;
+  /** the default scraper settings group */
+  default: Omit<ScraperPageSettings, 'urlPattern'>;
+  [name: string]: ScraperPageSettings;
 }
 
 export interface ScrapedRecord {
@@ -71,7 +107,7 @@ export interface SpiderOptions {
   /** custom user agent to set when running puppeteer */
   userAgent?: string;
   /** html selectors for telling the crawler which content to scrape for indexing */
-  selectors: Selectors;
+  scraperSettings: ScraperSettings;
   /** search engine settings */
   searchEngineOpts?: SearchPluginOptions;
   /** log level */
@@ -98,13 +134,20 @@ export interface SpiderOptions {
   shouldExcludeResult?: (content: string) => boolean;
   /** whether or not the spider should follow links in the initial page(s). Defaults to true */
   followLinks?: boolean;
+  /** basic auth credentials */
+  basicAuth?: {
+    user: string;
+    password: string;
+  };
+  /** request headers to include when crawling the site */
+  headers?: Record<string, string>;
 }
 
 export type CrawlSiteOptionsCrawlerConfig = Pick<
   SpiderOptions,
   | 'allowedDomains'
   | 'maxConcurrency'
-  | 'selectors'
+  | 'scraperSettings'
   | 'startUrls'
   | 'userAgent'
   | 'ignoreUrls'
@@ -117,4 +160,6 @@ export type CrawlSiteOptionsCrawlerConfig = Pick<
   | 'minResultLength'
   | 'logLevel'
   | 'followLinks'
+  | 'basicAuth'
+  | 'headers'
 >;

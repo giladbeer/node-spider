@@ -18,7 +18,11 @@ export class DummyFsPlugin implements SearchPlugin {
   async finish() {
     fs.writeFileSync(
       this.outputFileName,
-      JSON.stringify(this.records, undefined, 4)
+      JSON.stringify(
+        this.records.sort((a, b) => (a.uniqueId < b.uniqueId ? 1 : -1)),
+        undefined,
+        4
+      )
     );
   }
 }
