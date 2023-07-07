@@ -4,11 +4,10 @@ import {
   getSettingsGroupForUrl,
   getSelectorMatches,
   getSelectorMetadata,
-  removeExcludedElements
+  removeExcludedElements,
+  constructRecords
 } from './utils/scraping';
 import { getFromBaseAndCustom, uniq, withoutTrailingSlash } from './utils';
-import { getContentMatchLevel, getLevelWeight } from './hierarchy';
-import { md5 } from './utils/hashing';
 import { EventService } from './events';
 import { Logger } from './Logger';
 import { getBasicAuthHeader } from './utils/basicAuth';
@@ -170,40 +169,15 @@ export class PageScraper {
             })
           : {};
         this.logger.debug(`Page metadata`, JSON.stringify(metadata || {}));
-        const records: ScrapedRecord[] = [];
-        const hierarchy: ScrapedRecord['hierarchy'] = {
-          l0: '',
-          l1: '',
-          l2: '',
-          l3: '',
-          l4: '',
-          content: ''
-        };
-        selectorMatches.forEach((contentMatch) => {
-          if (
-            contentMatch
-            //  && !this.shouldExcludeResult?.(contentMatch)
-          ) {
-            const level = getContentMatchLevel(
-              contentMatch,
-              selectorMatchesByLevel
-            );
-            hierarchy[level] = contentMatch;
-            if (!onlyContentLevel || level === 'content') {
-              records.push({
-                uniqueId: md5(`${url}${contentMatch}`),
-                url,
-                content: contentMatch,
-                title,
-                hierarchy: { ...hierarchy },
-                metadata,
-                weight: {
-                  level: getLevelWeight(level),
-                  pageRank: pageRank || 0
-                }
-              });
-            }
-          }
+
+        const records = constructRecords({
+          selectorMatches,
+          selectorMatchesByLevel,
+          onlyContentLevel,
+          url,
+          title,
+          metadata,
+          pageRank
         });
 
         const allLinks = uniq(

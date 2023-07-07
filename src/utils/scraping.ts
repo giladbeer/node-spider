@@ -1,10 +1,13 @@
 import {
   ScraperSettings,
   HierarchySelectors,
-  MetadataSelectors
+  MetadataSelectors,
+  ScrapedRecord
 } from '../types';
 import { uniq as _uniq, withoutTrailingSlash } from '../utils';
 import { Level } from '../types';
+import { getContentMatchLevel, getLevelWeight } from '../hierarchy';
+import { md5 } from './hashing';
 
 /**
  * returns the scraper settings group that matches the current page's url, based on the group's urlPattern property
@@ -93,4 +96,56 @@ export async function removeExcludedElements({
   elements?.forEach((el) => {
     el.parentNode?.removeChild(el);
   });
+}
+
+export function constructRecords({
+  selectorMatches,
+  selectorMatchesByLevel,
+  onlyContentLevel,
+  url,
+  title,
+  metadata,
+  pageRank
+}: {
+  selectorMatches: (string | null)[];
+  selectorMatchesByLevel: Partial<Record<Level, string[]>>;
+  onlyContentLevel?: boolean;
+  url: string;
+  title: string;
+  metadata: Record<string, any>;
+  pageRank?: number;
+}) {
+  const records: ScrapedRecord[] = [];
+  const hierarchy: ScrapedRecord['hierarchy'] = {
+    l0: '',
+    l1: '',
+    l2: '',
+    l3: '',
+    l4: '',
+    content: ''
+  };
+  selectorMatches.forEach((contentMatch) => {
+    if (
+      contentMatch
+      //  && !this.shouldExcludeResult?.(contentMatch)
+    ) {
+      const level = getContentMatchLevel(contentMatch, selectorMatchesByLevel);
+      hierarchy[level] = contentMatch;
+      if (!onlyContentLevel || level === 'content') {
+        records.push({
+          uniqueId: md5(`${url}${contentMatch}`),
+          url,
+          content: contentMatch,
+          title,
+          hierarchy: { ...hierarchy },
+          metadata,
+          weight: {
+            level: getLevelWeight(level),
+            pageRank: pageRank || 0
+          }
+        });
+      }
+    }
+  });
+  return records;
 }

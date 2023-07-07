@@ -1,5 +1,5 @@
 import { uniq } from './misc';
-import { getSelectorMatches } from './scraping';
+import { constructRecords, getSelectorMatches } from './scraping';
 
 const SIMPLE_HTML_DOC = `
 <!DOCTYPE html>
@@ -151,6 +151,79 @@ describe('utils/scraping', () => {
         l4: ['Heading4 a', 'Heading4 b', 'Heading4 c']
       },
       title: 'Title'
+    });
+  });
+
+  test('utils/scraping/constructRecords', async () => {
+    const records = constructRecords({
+      selectorMatches: [
+        'Title',
+        'Heading1 a',
+        'Heading2',
+        'Heading3',
+        'Heading1 b',
+        'Heading1 c',
+        'Heading4 a',
+        'Heading4 b',
+        'Heading1 d',
+        'Heading4 c'
+      ],
+      selectorMatchesByLevel: {
+        l0: ['Title'],
+        l1: ['Heading1 a', 'Heading1 b', 'Heading1 c', 'Heading1 d'],
+        l2: ['Heading2'],
+        l3: ['Heading3'],
+        l4: ['Heading4 a', 'Heading4 b', 'Heading4 c']
+      },
+      onlyContentLevel: false,
+      url: 'www.google.com',
+      title: 'test',
+      metadata: {}
+    });
+    expect(records[0].content).toEqual('Title');
+    expect(records[0].hierarchy).toEqual({
+      l0: 'Title',
+      l1: '',
+      l2: '',
+      l3: '',
+      l4: '',
+      content: ''
+    });
+    expect(records[1].content).toEqual('Heading1 a');
+    expect(records[1].hierarchy).toEqual({
+      l0: 'Title',
+      l1: 'Heading1 a',
+      l2: '',
+      l3: '',
+      l4: '',
+      content: ''
+    });
+    expect(records[2].content).toEqual('Heading2');
+    expect(records[2].hierarchy).toEqual({
+      l0: 'Title',
+      l1: 'Heading1 a',
+      l2: 'Heading2',
+      l3: '',
+      l4: '',
+      content: ''
+    });
+    expect(records[3].content).toEqual('Heading3');
+    expect(records[3].hierarchy).toEqual({
+      l0: 'Title',
+      l1: 'Heading1 a',
+      l2: 'Heading2',
+      l3: 'Heading3',
+      l4: '',
+      content: ''
+    });
+    expect(records[4].content).toEqual('Heading1 b');
+    expect(records[4].hierarchy).toEqual({
+      l0: 'Title',
+      l1: 'Heading1 b',
+      l2: 'Heading2',
+      l3: 'Heading3',
+      l4: '',
+      content: ''
     });
   });
 });
