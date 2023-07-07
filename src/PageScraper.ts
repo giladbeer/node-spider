@@ -8,7 +8,7 @@ import {
   constructRecords
 } from './utils/scraping';
 import { getFromBaseAndCustom, uniq, withoutTrailingSlash } from './utils';
-// import { EventService } from './events';
+import { EventService } from './events';
 import { Logger } from './Logger';
 import { getBasicAuthHeader } from './utils/basicAuth';
 
@@ -32,7 +32,7 @@ export class PageScraper {
   private readonly onAbort?: () => void | Promise<void>;
   private readonly stopSignal?: () => void;
   private readonly settings: ScraperSettings;
-  // private readonly eventService: EventService;
+  private readonly eventService: EventService;
   private readonly logger: Logger;
 
   constructor(options: PageScraperOptions) {
@@ -41,7 +41,7 @@ export class PageScraper {
     this.onAbort = options.onAbort;
     this.stopSignal = options.stopSignal;
     this.settings = options.settings;
-    // this.eventService = EventService.getInstance();
+    this.eventService = EventService.getInstance();
     this.logger = Logger.getInstance({});
   }
 
