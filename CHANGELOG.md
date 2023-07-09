@@ -1,3 +1,12 @@
+# [2.0.0](https://github.com/giladbeer/node-spider/compare/v1.0.0...v2.0.0) (2023-07-09)
+
+
+### breaking
+
+* missing bits from pre-refactor ([80bd82c](https://github.com/giladbeer/node-spider/commit/80bd82ca1394fb26d4b476343089ae71ddda1701))
+
+
+
 # [1.0.0](https://github.com/giladbeer/node-spider/compare/v0.7.3...v1.0.0) (2023-07-07)
 
 
@@ -47,15 +56,6 @@
 ### update
 
 * fix incorrect link in readme ([fd82296](https://github.com/giladbeer/node-spider/commit/fd82296dc3df9c4e645f77274e0695e2c2582e00))
-
-
-
-# [0.7.0](https://github.com/giladbeer/node-spider/compare/v0.6.13...v0.7.0) (2022-12-12)
-
-
-### new
-
-* add support for metadata config, allowing you to index additional custom fields ([39c69c6](https://github.com/giladbeer/node-spider/commit/39c69c6dee1258557c177b4ece669cd6941232c4))
 
 
 
