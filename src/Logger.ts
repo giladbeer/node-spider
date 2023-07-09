@@ -60,6 +60,12 @@ export class Logger {
       }
     } else {
       console[level](this.formatted(message, level));
+      if (this.outputFilePath) {
+        appendFileSync(
+          this.outputFilePath,
+          `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`
+        );
+      }
     }
   }
 

@@ -104,3 +104,5 @@ export const getFromBaseAndCustom = <T, K extends keyof T>(
   });
   return resultObject;
 };
+
+export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));

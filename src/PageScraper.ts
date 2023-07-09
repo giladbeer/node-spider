@@ -94,7 +94,10 @@ export class PageScraper {
         this.settings.shared?.metadataSelectors;
 
       this.onStart?.();
-      if (this.stopSignal?.()) {
+      const shouldAbort = !!this.stopSignal?.();
+      this.logger.debug(`scraper task: shouldAbort==${shouldAbort}`);
+      if (shouldAbort) {
+        this.logger.warn(`scraper task: shouldAbort==true, aborting!`);
         this.onAbort?.();
         return;
       }
@@ -194,7 +197,10 @@ export class PageScraper {
         this.logger.debug(`Page links`, allLinks);
         if (this.onFinish) {
           this.logger.debug(`Page scraped`, JSON.stringify(records || {}));
-          this.onFinish({ scrapedRecords: records, scrapedLinks: allLinks });
+          await this.onFinish({
+            scrapedRecords: records,
+            scrapedLinks: allLinks
+          });
         }
       } else {
         // skip crawling this page

@@ -111,21 +111,58 @@ export class Spider {
     scrapedRecords: ScrapedRecord[];
     scrapedLinks: string[];
   }) {
-    if (this.searchPlugin) {
-      await this.searchPlugin.addRecords(scrapedRecords);
-    }
-    if (this.followLinks) {
-      const linksToCrawl = scrapedLinks.filter(
-        (link: string) =>
-          !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
-          !this.state.visitedUrls.includes(link) &&
-          this.allowedDomains.includes(urlToDomain(link))
+    try {
+      if (this.searchPlugin) {
+        let recordsToAdd = scrapedRecords;
+        const isMaxIndexedRecords =
+          this.maxIndexedRecords || this.maxIndexedRecords === 0 ? true : false;
+        if (isMaxIndexedRecords) {
+          const remainingSpace = Math.max(
+            (this.maxIndexedRecords || 0) - this.state.indexedRecords,
+            0
+          );
+          recordsToAdd = recordsToAdd.slice(0, remainingSpace);
+        }
+        await this.searchPlugin.addRecords(recordsToAdd);
+        this.state.indexedRecords += recordsToAdd.length;
+        if (
+          isMaxIndexedRecords &&
+          this.state.indexedRecords + scrapedRecords.length >=
+            (this.maxIndexedRecords || 0)
+        ) {
+          this.logger.warn(
+            `reached max indexed records at ${this.maxIndexedRecords} - stopping...`
+          );
+          this.cluster.stop();
+          return;
+        }
+      }
+      if (this.followLinks) {
+        const linksToCrawl = scrapedLinks.filter(
+          (link: string) =>
+            !this.ignoreUrls.find((ignoredUrl) => !!link.match(ignoredUrl)) &&
+            !this.state.visitedUrls.includes(link) &&
+            this.allowedDomains.includes(urlToDomain(link))
+        );
+        linksToCrawl.forEach((link: string) => {
+          this.state.visitedUrls.push(link);
+          this.cluster.queue({ url: link });
+          this.state.remainingQueueSize++;
+        });
+      }
+      this.logger.debug(
+        `Page indexing done!\n ${JSON.stringify(
+          {
+            remainingQueueSize: this.state.remainingQueueSize,
+            totalScrapedPages: ++this.state.scrapedUrls,
+            totalIndexedRecords: this.state.indexedRecords
+          },
+          undefined,
+          4
+        )}`
       );
-      linksToCrawl.forEach((link: string) => {
-        this.state.visitedUrls.push(link);
-        this.cluster.queue({ url: link });
-        this.state.remainingQueueSize++;
-      });
+    } catch (error) {
+      this.logger.error('onPageScraped error', error);
     }
   }
 
@@ -142,7 +179,7 @@ export class Spider {
     const pageScraper = new PageScraper({
       onStart: this.cluster.onTaskStarted,
       onFinish: this.onPageScraped.bind(this),
-      stopSignal: this.cluster.isStopping,
+      stopSignal: this.cluster.isStopping.bind(this.cluster),
       settings: this.scraperSettings
     });
     this.cluster.setTaskFunction(pageScraper.scrapePage.bind(pageScraper));

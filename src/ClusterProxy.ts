@@ -66,6 +66,10 @@ export class ClusterProxy<T, S> {
     await this.cluster?.close();
   }
 
+  public stop() {
+    this._isStopping = true;
+  }
+
   public isStopping() {
     return this._isStopping;
   }
@@ -82,10 +86,12 @@ export class ClusterProxy<T, S> {
   }
 
   queue(data: T) {
-    this.queueSize++;
-    this.cluster?.queue({
-      ...data,
-      cluster: this
-    });
+    if (!this._isStopping) {
+      this.queueSize++;
+      this.cluster?.queue({
+        ...data,
+        cluster: this
+      });
+    }
   }
 }

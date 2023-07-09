@@ -1,5 +1,6 @@
 node_modules
-config.json
+*config*.json
+!config.sample.json
 .npmrc
 .env
 node_spider_algolia_config.json
