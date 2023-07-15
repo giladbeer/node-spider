@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/giladbeer/node-spider/compare/v2.0.0...v2.0.1) (2023-07-15)
+
+
+### update
+
+* updated docs ([37d108e](https://github.com/giladbeer/node-spider/commit/37d108ebb1168eb1e72460e94d791ebb10f9dc2b))
+
+
+
 # [2.0.0](https://github.com/giladbeer/node-spider/compare/v1.0.0...v2.0.0) (2023-07-09)
 
 
@@ -47,15 +56,6 @@
 
 * accumulated hierarchy for each page ([ed0d3a6](https://github.com/giladbeer/node-spider/commit/ed0d3a64354a22d5b096fd754d3b4e8e67003c86))
 * remove unused type ([c3ecf8e](https://github.com/giladbeer/node-spider/commit/c3ecf8e5de58dec919cfe0123c27abd62491d65c))
-
-
-
-## [0.7.1](https://github.com/giladbeer/node-spider/compare/v0.7.0...v0.7.1) (2023-01-12)
-
-
-### update
-
-* fix incorrect link in readme ([fd82296](https://github.com/giladbeer/node-spider/commit/fd82296dc3df9c4e645f77274e0695e2c2582e00))
 
 
 
