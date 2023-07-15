@@ -1,3 +1,12 @@
+## [2.0.2](https://github.com/giladbeer/node-spider/compare/v2.0.1...v2.0.2) (2023-07-15)
+
+
+### update
+
+* updated sample config file ([43309eb](https://github.com/giladbeer/node-spider/commit/43309ebb91e2c1a464110cfab34b0e6c2160d71f))
+
+
+
 ## [2.0.1](https://github.com/giladbeer/node-spider/compare/v2.0.0...v2.0.1) (2023-07-15)
 
 
@@ -46,16 +55,6 @@
 ### update
 
 * only content matches ([07c77f5](https://github.com/giladbeer/node-spider/commit/07c77f50b48fb979e883966e1d26bc2770d56393))
-
-
-
-## [0.7.2](https://github.com/giladbeer/node-spider/compare/v0.7.1...v0.7.2) (2023-02-12)
-
-
-### update
-
-* accumulated hierarchy for each page ([ed0d3a6](https://github.com/giladbeer/node-spider/commit/ed0d3a64354a22d5b096fd754d3b4e8e67003c86))
-* remove unused type ([c3ecf8e](https://github.com/giladbeer/node-spider/commit/c3ecf8e5de58dec919cfe0123c27abd62491d65c))
 
 
 
