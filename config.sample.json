@@ -3,39 +3,45 @@
   "startUrls": [
     "https://www.google.com"
   ],
-  "ignoreUrls": [
-    "(.)*&utm_source(.)*"
+  "allowedDomains": [
+    "google.com"
   ],
-  "selectors": {
+  "scraperSettings": {
     "default": {
-      "hierarchy": {
+      "hierarchySelectors": {
         "l0": "title",
         "l1": "main h1",
         "l2": "main h2",
         "l3": "main h3",
         "l4": "main h4",
         "content": "main p"
-      },
-      "metadata": {
-        "ie": "meta[content^='ie']"
       }
     },
     "about": {
-      "hierarchy": {
+      "hierarchySelectors": {
         "l0": "title",
         "l1": "main h1",
         "content": "main p"
       },
       "urlPattern": "(.)*about(.)*"
+    },
+    "shared": {
+      "userAgent": "Agent Smith",
+      "basicAuth": {
+        "user": "myuser",
+        "password": "mypass"
+      },
+      "metadataSelectors": {
+        "ie": "meta[content^='ie']"
+      },
+      "onlyContentLevel": true,
+      "excludeSelectors": [
+        "header",
+        "footer"
+      ]
     }
   },
-  "onlyContentLevel": true,
-  "excludeSelectors": [
-    "header",
-    "footer"
-  ],
-  "userAgent": "Agent Smith",
   "diagnostics": true,
   "logLevel": "debug",
-  "maxIndexedRecords": 300
+  "maxIndexedRecords": 1000
 }
