@@ -121,3 +121,7 @@ hierarchy selectors. Essentially a mapping from html selectors to indexed hierar
 | `l3` | N | string | HTML selectors for matching l3 |
 | `l4` | N | string | HTML selectors for matching l4 |
 | `content` | N | string | HTML selectors for matching content |
+
+## Under the hood
+For detailed information about the way the spider works, visit:
+https://github.com/giladbeer/node-spider/blob/main/docs/under-the-hood.md
