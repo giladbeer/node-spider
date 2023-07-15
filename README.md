@@ -69,7 +69,7 @@ instantiates a Spider object, initializing it based on your config file and sett
 
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
-| `configFilePath` | N | string | the path to your config json file |
+| `configFilePath` | N | string | the path to your config json file (see sample config: https://github.com/giladbeer/node-spider/blob/main/config.sample.json or reference: #CrawlSiteOptionsCrawlerConfig) |
 | `config` | N | [CrawlSiteOptionsCrawlerConfig](#CrawlSiteOptionsCrawlerConfig) | alternatively to passing a config file path, can pass the config file's properties here |
 | `searchEngineOpts` | N | SearchEngineOpts | search engine settings |
 | `logLevel` | N | `"debug"` / `"warn"` / `"error"` | log level |
