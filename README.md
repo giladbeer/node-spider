@@ -69,8 +69,8 @@ instantiates a Spider object, initializing it based on your config file and sett
 
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
-| `configFilePath` | N | string | the path to your config json file (see sample config: https://github.com/giladbeer/node-spider/blob/main/config.sample.json or reference: #CrawlSiteOptionsCrawlerConfig) |
-| `config` | N | [CrawlSiteOptionsCrawlerConfig](#CrawlSiteOptionsCrawlerConfig) | alternatively to passing a config file path, can pass the config file's properties here |
+| `configFilePath` | N | string | the path to your config json file (see sample config: https://github.com/giladbeer/node-spider/blob/main/config.sample.json or [reference](#crawlsiteoptionscrawlerconfig)) |
+| `config` | N | [CrawlSiteOptionsCrawlerConfig](#crawlsiteoptionscrawlerconfig) | alternatively to passing a config file path, can pass the config file's properties here |
 | `searchEngineOpts` | N | SearchEngineOpts | search engine settings |
 | `logLevel` | N | `"debug"` / `"warn"` / `"error"` | log level |
 | `diagnostics` | N | boolean | whether or not to output diagnostics |
@@ -82,7 +82,7 @@ instantiates a Spider object, initializing it based on your config file and sett
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
 | `startUrls` | Y | string / string[] | list of urls that the crawler will start from |
-| `scraperSettings` | Y | [ScraperSettings](#ScraperSettings) | html selectors for telling the crawler which content to scrape for indexing |
+| `scraperSettings` | Y | [ScraperSettings](#scrapersettings) | html selectors for telling the crawler which content to scrape for indexing |
 | `allowedDomains` | N | string / string[] | list of allowed domains. When not specified, defaults to the domains of your startUrls |
 | `ignoreUrls` | N | string / string[] | list of url patterns to ignore |
 | `maxConcurrency` | N | number | maximum concurrent puppeteer clusters to run |
@@ -91,15 +91,15 @@ instantiates a Spider object, initializing it based on your config file and sett
 all of the scraper settings groups (each group except the default ties to a specific URL pattern)
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
-| `default` | Y | [ScraperPageSettings](#ScraperPageSettings) | default scraper page settings - will be applied when the scraped url doesn't match any other scraper page settings group |
-| `[your scraper page-level settings group name]` | N | [ScraperPageSettings](#ScraperPageSettings) | page-level settings group. Can add as many as you want. Each group will be applied to a given url pattern. During crawling, the settings for each page will be chosen based on which group's  `urlPatten` field matches the page url. The default one will be chosen if no match was found |
-| `shared` | Y | [ScraperPageSettings](#ScraperPageSettings) | shared scraper settings - settings defined here will be applied for all pages unless there is an overriding setting in the default or the specific settings group that is matches the current page |
+| `default` | Y | [ScraperPageSettings](#scraperpagesettings) | default scraper page settings - will be applied when the scraped url doesn't match any other scraper page settings group |
+| `[your scraper page-level settings group name]` | N | [ScraperPageSettings](#scraperpagesettings) | page-level settings group. Can add as many as you want. Each group will be applied to a given url pattern. During crawling, the settings for each page will be chosen based on which group's  `urlPatten` field matches the page url. The default one will be chosen if no match was found |
+| `shared` | Y | [ScraperPageSettings](#scraperpagesettings) | shared scraper settings - settings defined here will be applied for all pages unless there is an overriding setting in the default or the specific settings group that is matches the current page |
 
 #### ScraperPageSettings
 A group of a scraper settings - mostly hierarchy and metadata selectors, grouped by a specific URL pattern
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
-| `hierarchySelectors` | Y | [HierarchySelectors](#HierarchySelectors) | selectors hierarchy (see below) |
+| `hierarchySelectors` | Y | [HierarchySelectors](#hierarchyselectors) | selectors hierarchy (see below) |
 | `metadataSelectors` | Y | Record<string, string> | metadata selectors. Mapping from html selectors to custom additional fields in the index, e.g. can scrape meta tags of a certain content pattern and store under a custom field |
 | `urlPattern` | Y | string | URL pattern. During crawling, the settings group for each page will be chosen based on which group's `urlPatten` field matches the page url. The default one will be chosen if no match was found |
 | `pageRank` | N | number | custom ranking for the matched pages. Defaults to 0 |
