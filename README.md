@@ -70,7 +70,7 @@ instantiates a Spider object, initializing it based on your config file and sett
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
 | `configFilePath` | N | string | the path to your config json file |
-| `config` | N | [CrawlerConfig](#CrawlerConfig) | alternatively to passing a config file path, can pass the config file's properties here |
+| `config` | N | [CrawlSiteOptionsCrawlerConfig](#CrawlSiteOptionsCrawlerConfig) | alternatively to passing a config file path, can pass the config file's properties here |
 | `searchEngineOpts` | N | SearchEngineOpts | search engine settings |
 | `logLevel` | N | `"debug"` / `"warn"` / `"error"` | log level |
 | `diagnostics` | N | boolean | whether or not to output diagnostics |
@@ -78,35 +78,44 @@ instantiates a Spider object, initializing it based on your config file and sett
 | `timeout` | N | number | timeout in ms |
 | `maxIndexedRecords` | N | number | maximum number of records to index. If reached, the crawling jobs will terminate |
 
-#### CrawlerConfig
+#### CrawlSiteOptionsCrawlerConfig
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
 | `startUrls` | Y | string / string[] | list of urls that the crawler will start from |
-| `selectors` | Y | [Selectors](#Selectors) | html selectors for telling the crawler which content to scrape for indexing |
+| `scraperSettings` | Y | [ScraperSettings](#ScraperSettings) | html selectors for telling the crawler which content to scrape for indexing |
 | `allowedDomains` | N | string / string[] | list of allowed domains. When not specified, defaults to the domains of your startUrls |
 | `ignoreUrls` | N | string / string[] | list of url patterns to ignore |
-| `userAgent` | N | string | custom user agent to set when running puppeteer |
-| `excludeSelectors` | N | string[] | list of html selectors to exclude from being scraped |
 | `maxConcurrency` | N | number | maximum concurrent puppeteer clusters to run |
-| `respectRobotsMeta` | N | boolean | whether or not the crawler should respect `noindex` meta tag. Defaults to false |
 
-#### Selectors
+#### ScraperSettings
+all of the scraper settings groups (each group except the default ties to a specific URL pattern)
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
-| `default` | Y | [SelectorsSet](#SelectorsSet) | default selector set |
-| `[your selector set name]` | N | [SelectorsSet](#SelectorsSet) | custom selector set. Can add as many as you want. During crawling, the selectors set for each page will be chosen based on which selectors set's `urlPatten` field matches the page url. The default one will be chosen if no match was found |
+| `default` | Y | [ScraperPageSettings](#ScraperPageSettings) | default scraper page settings - will be applied when the scraped url doesn't match any other scraper page settings group |
+| `[your scraper page-level settings group name]` | N | [ScraperPageSettings](#ScraperPageSettings) | page-level settings group. Can add as many as you want. Each group will be applied to a given url pattern. During crawling, the settings for each page will be chosen based on which group's  `urlPatten` field matches the page url. The default one will be chosen if no match was found |
+| `shared` | Y | [ScraperPageSettings](#ScraperPageSettings) | shared scraper settings - settings defined here will be applied for all pages unless there is an overriding setting in the default or the specific settings group that is matches the current page |
 
-#### SelectorsSet
+#### ScraperPageSettings
+A group of a scraper settings - mostly hierarchy and metadata selectors, grouped by a specific URL pattern
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
-| `hierarchy` | Y | [Hierarchy](#Hierarchy) | selectors set hierarchy |
-| `urlPattern` | N | string | URL pattern. During crawling, the selectors set for each page will be chosen based on which selectors set's `urlPatten` field matches the page url. The default one will be chosen if no match was found |
+| `hierarchySelectors` | Y | [HierarchySelectors](#HierarchySelectors) | selectors hierarchy (see below) |
+| `metadataSelectors` | Y | Record<string, string> | metadata selectors. Mapping from html selectors to custom additional fields in the index, e.g. can scrape meta tags of a certain content pattern and store under a custom field |
+| `urlPattern` | Y | string | URL pattern. During crawling, the settings group for each page will be chosen based on which group's `urlPatten` field matches the page url. The default one will be chosen if no match was found |
 | `pageRank` | N | number | custom ranking for the matched pages. Defaults to 0 |
+| `respectRobotsMeta` | N | boolean | whether or not the crawler should respect `noindex` meta tag. Defaults to false |
+| `excludeSelectors` | N | string[] | list of html selectors to exclude from being scraped |
+| `userAgent` | N | string | custom user agent to set when running puppeteer |
+| `headers` | N | Record<string, string> | request headers to include when crawling the site |
+| `basicAuth` | N | { user: string; password: string } | basic auth credentials |
 
-#### Hierarchy
+
+
+#### HierarchySelectors
+hierarchy selectors. Essentially a mapping from html selectors to indexed hierarchy levels
 | Property | Required | Type | Description |
 | --- | --- | --- | --- |
-| `l0` | N | string | HTML selectors for matching l0 |
+| `l0` | N | string | HTML selectors for matching l0, e.g. "span[class='myclass'], .myclass2" |
 | `l1` | N | string | HTML selectors for matching l1 |
 | `l2` | N | string | HTML selectors for matching l2|
 | `l3` | N | string | HTML selectors for matching l3 |

@@ -63,7 +63,7 @@ export class Logger {
       if (this.outputFilePath) {
         appendFileSync(
           this.outputFilePath,
-          `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`
+          `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}\n`
         );
       }
     }

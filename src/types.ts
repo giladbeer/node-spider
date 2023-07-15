@@ -124,23 +124,12 @@ export interface SpiderOptions {
   timeout?: number;
   /** maximum number of records to index. If reached, the crawling jobs will terminate */
   maxIndexedRecords?: number;
-  /** list of html selectors to exclude from being scraped */
-  excludeSelectors?: string[];
-  /** whether or not the crawler should respect 'noindex' meta tag */
-  respectRobotsMeta?: boolean;
   /** minimum word length to index */
   minResultLength?: number;
   /** predicate for excluding a result from being indexed. Returns true if the result should be excluded */
   shouldExcludeResult?: (content: string) => boolean;
   /** whether or not the spider should follow links in the initial page(s). Defaults to true */
   followLinks?: boolean;
-  /** basic auth credentials */
-  basicAuth?: {
-    user: string;
-    password: string;
-  };
-  /** request headers to include when crawling the site */
-  headers?: Record<string, string>;
 }
 
 export type CrawlSiteOptionsCrawlerConfig = Pick<
@@ -151,8 +140,6 @@ export type CrawlSiteOptionsCrawlerConfig = Pick<
   | 'startUrls'
   | 'userAgent'
   | 'ignoreUrls'
-  | 'excludeSelectors'
-  | 'respectRobotsMeta'
   | 'diagnostics'
   | 'diagnosticsFilePath'
   | 'timeout'
@@ -160,6 +147,4 @@ export type CrawlSiteOptionsCrawlerConfig = Pick<
   | 'minResultLength'
   | 'logLevel'
   | 'followLinks'
-  | 'basicAuth'
-  | 'headers'
 >;

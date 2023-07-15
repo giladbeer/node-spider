@@ -9,10 +9,6 @@ interface ClusterProxyOptions<T, S> {
   taskCompletedCallback?: (args: S) => Promise<void>;
 }
 
-interface QueueArgs {
-  url: string;
-}
-
 export class ClusterProxy<T, S> {
   private cluster: Cluster | undefined;
   private readonly maxConcurrency: number;
